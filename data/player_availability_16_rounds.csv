@@ -1,0 +1,318 @@
+Round,Player,Position,Team,Drafted_by_Round_%,Times_Drafted,First_Round,Last_Round,Variance
+1,Jahmyr Gibbs,RB,DET,100.0,8,1,1,0
+1,Ja'Marr Chase,WR,CIN,100.0,8,1,1,0
+1,Bijan Robinson,RB,ATL,100.0,8,1,1,0
+1,Puka Nacua,WR,LAR,100.0,8,1,1,0
+1,Christian McCaffrey,RB,SF,100.0,8,1,1,0
+1,Jonathan Taylor,RB,IND,100.0,8,1,1,0
+1,Amon-Ra St. Brown,WR,DET,100.0,8,1,1,0
+1,Jaxon Smith-Njigba,WR,SEA,100.0,8,1,1,0
+1,CeeDee Lamb,WR,DAL,75.0,6,1,2,1
+1,James Cook III,RB,BUF,50.0,4,1,2,1
+1,Justin Jefferson,WR,MIN,50.0,4,1,2,1
+1,A.J. Brown,WR,NE,50.0,4,1,2,1
+1,Ashton Jeanty,RB,LV,37.5,3,1,2,1
+1,Drake London,WR,ATL,37.5,3,1,2,1
+1,De'Von Achane,RB,MIA,25.0,2,1,2,1
+1,Derrick Henry,RB,BAL,12.5,1,1,3,2
+1,Chase Brown,RB,CIN,12.5,1,1,3,2
+2,Jahmyr Gibbs,RB,DET,100.0,8,1,1,0
+2,Ja'Marr Chase,WR,CIN,100.0,8,1,1,0
+2,Bijan Robinson,RB,ATL,100.0,8,1,1,0
+2,Puka Nacua,WR,LAR,100.0,8,1,1,0
+2,Christian McCaffrey,RB,SF,100.0,8,1,1,0
+2,Jonathan Taylor,RB,IND,100.0,8,1,1,0
+2,Amon-Ra St. Brown,WR,DET,100.0,8,1,1,0
+2,Jaxon Smith-Njigba,WR,SEA,100.0,8,1,1,0
+2,James Cook III,RB,BUF,100.0,8,1,2,1
+2,CeeDee Lamb,WR,DAL,100.0,8,1,2,1
+2,De'Von Achane,RB,MIA,100.0,8,1,2,1
+2,Justin Jefferson,WR,MIN,100.0,8,1,2,1
+2,Ashton Jeanty,RB,LV,100.0,8,1,2,1
+2,A.J. Brown,WR,NE,100.0,8,1,2,1
+2,Drake London,WR,ATL,100.0,8,1,2,1
+2,Chase Brown,RB,CIN,87.5,7,1,3,2
+2,Nico Collins,WR,HOU,87.5,7,2,3,1
+2,Omarion Hampton,RB,LAC,87.5,7,2,3,1
+2,Derrick Henry,RB,BAL,75.0,6,1,3,2
+2,Saquon Barkley,RB,PHI,75.0,6,2,3,1
+3,Jahmyr Gibbs,RB,DET,100.0,8,1,1,0
+3,Ja'Marr Chase,WR,CIN,100.0,8,1,1,0
+3,Bijan Robinson,RB,ATL,100.0,8,1,1,0
+3,Puka Nacua,WR,LAR,100.0,8,1,1,0
+3,Christian McCaffrey,RB,SF,100.0,8,1,1,0
+3,Jonathan Taylor,RB,IND,100.0,8,1,1,0
+3,Amon-Ra St. Brown,WR,DET,100.0,8,1,1,0
+3,Jaxon Smith-Njigba,WR,SEA,100.0,8,1,1,0
+3,James Cook III,RB,BUF,100.0,8,1,2,1
+3,CeeDee Lamb,WR,DAL,100.0,8,1,2,1
+3,De'Von Achane,RB,MIA,100.0,8,1,2,1
+3,Justin Jefferson,WR,MIN,100.0,8,1,2,1
+3,Ashton Jeanty,RB,LV,100.0,8,1,2,1
+3,A.J. Brown,WR,NE,100.0,8,1,2,1
+3,Drake London,WR,ATL,100.0,8,1,2,1
+3,Derrick Henry,RB,BAL,100.0,8,1,3,2
+3,Chase Brown,RB,CIN,100.0,8,1,3,2
+3,Nico Collins,WR,HOU,100.0,8,2,3,1
+3,Rashee Rice,WR,KC,100.0,8,2,3,1
+3,Chris Olave,WR,NO,100.0,8,2,3,1
+4,Jahmyr Gibbs,RB,DET,100.0,8,1,1,0
+4,Ja'Marr Chase,WR,CIN,100.0,8,1,1,0
+4,Bijan Robinson,RB,ATL,100.0,8,1,1,0
+4,Puka Nacua,WR,LAR,100.0,8,1,1,0
+4,Christian McCaffrey,RB,SF,100.0,8,1,1,0
+4,Jonathan Taylor,RB,IND,100.0,8,1,1,0
+4,Amon-Ra St. Brown,WR,DET,100.0,8,1,1,0
+4,Jaxon Smith-Njigba,WR,SEA,100.0,8,1,1,0
+4,James Cook III,RB,BUF,100.0,8,1,2,1
+4,CeeDee Lamb,WR,DAL,100.0,8,1,2,1
+4,De'Von Achane,RB,MIA,100.0,8,1,2,1
+4,Justin Jefferson,WR,MIN,100.0,8,1,2,1
+4,Ashton Jeanty,RB,LV,100.0,8,1,2,1
+4,A.J. Brown,WR,NE,100.0,8,1,2,1
+4,Drake London,WR,ATL,100.0,8,1,2,1
+4,Derrick Henry,RB,BAL,100.0,8,1,3,2
+4,Chase Brown,RB,CIN,100.0,8,1,3,2
+4,Nico Collins,WR,HOU,100.0,8,2,3,1
+4,Rashee Rice,WR,KC,100.0,8,2,3,1
+4,Chris Olave,WR,NO,100.0,8,2,3,1
+5,Jahmyr Gibbs,RB,DET,100.0,8,1,1,0
+5,Ja'Marr Chase,WR,CIN,100.0,8,1,1,0
+5,Bijan Robinson,RB,ATL,100.0,8,1,1,0
+5,Puka Nacua,WR,LAR,100.0,8,1,1,0
+5,Christian McCaffrey,RB,SF,100.0,8,1,1,0
+5,Jonathan Taylor,RB,IND,100.0,8,1,1,0
+5,Amon-Ra St. Brown,WR,DET,100.0,8,1,1,0
+5,Jaxon Smith-Njigba,WR,SEA,100.0,8,1,1,0
+5,James Cook III,RB,BUF,100.0,8,1,2,1
+5,CeeDee Lamb,WR,DAL,100.0,8,1,2,1
+5,De'Von Achane,RB,MIA,100.0,8,1,2,1
+5,Justin Jefferson,WR,MIN,100.0,8,1,2,1
+5,Ashton Jeanty,RB,LV,100.0,8,1,2,1
+5,A.J. Brown,WR,NE,100.0,8,1,2,1
+5,Drake London,WR,ATL,100.0,8,1,2,1
+5,Derrick Henry,RB,BAL,100.0,8,1,3,2
+5,Chase Brown,RB,CIN,100.0,8,1,3,2
+5,Nico Collins,WR,HOU,100.0,8,2,3,1
+5,Rashee Rice,WR,KC,100.0,8,2,3,1
+5,Chris Olave,WR,NO,100.0,8,2,3,1
+6,Jahmyr Gibbs,RB,DET,100.0,8,1,1,0
+6,Ja'Marr Chase,WR,CIN,100.0,8,1,1,0
+6,Bijan Robinson,RB,ATL,100.0,8,1,1,0
+6,Puka Nacua,WR,LAR,100.0,8,1,1,0
+6,Christian McCaffrey,RB,SF,100.0,8,1,1,0
+6,Jonathan Taylor,RB,IND,100.0,8,1,1,0
+6,Amon-Ra St. Brown,WR,DET,100.0,8,1,1,0
+6,Jaxon Smith-Njigba,WR,SEA,100.0,8,1,1,0
+6,James Cook III,RB,BUF,100.0,8,1,2,1
+6,CeeDee Lamb,WR,DAL,100.0,8,1,2,1
+6,De'Von Achane,RB,MIA,100.0,8,1,2,1
+6,Justin Jefferson,WR,MIN,100.0,8,1,2,1
+6,Ashton Jeanty,RB,LV,100.0,8,1,2,1
+6,A.J. Brown,WR,NE,100.0,8,1,2,1
+6,Drake London,WR,ATL,100.0,8,1,2,1
+6,Derrick Henry,RB,BAL,100.0,8,1,3,2
+6,Chase Brown,RB,CIN,100.0,8,1,3,2
+6,Nico Collins,WR,HOU,100.0,8,2,3,1
+6,Rashee Rice,WR,KC,100.0,8,2,3,1
+6,Chris Olave,WR,NO,100.0,8,2,3,1
+7,Jahmyr Gibbs,RB,DET,100.0,8,1,1,0
+7,Ja'Marr Chase,WR,CIN,100.0,8,1,1,0
+7,Bijan Robinson,RB,ATL,100.0,8,1,1,0
+7,Puka Nacua,WR,LAR,100.0,8,1,1,0
+7,Christian McCaffrey,RB,SF,100.0,8,1,1,0
+7,Jonathan Taylor,RB,IND,100.0,8,1,1,0
+7,Amon-Ra St. Brown,WR,DET,100.0,8,1,1,0
+7,Jaxon Smith-Njigba,WR,SEA,100.0,8,1,1,0
+7,James Cook III,RB,BUF,100.0,8,1,2,1
+7,CeeDee Lamb,WR,DAL,100.0,8,1,2,1
+7,De'Von Achane,RB,MIA,100.0,8,1,2,1
+7,Justin Jefferson,WR,MIN,100.0,8,1,2,1
+7,Ashton Jeanty,RB,LV,100.0,8,1,2,1
+7,A.J. Brown,WR,NE,100.0,8,1,2,1
+7,Drake London,WR,ATL,100.0,8,1,2,1
+7,Derrick Henry,RB,BAL,100.0,8,1,3,2
+7,Chase Brown,RB,CIN,100.0,8,1,3,2
+7,Nico Collins,WR,HOU,100.0,8,2,3,1
+7,Rashee Rice,WR,KC,100.0,8,2,3,1
+7,Chris Olave,WR,NO,100.0,8,2,3,1
+8,Jahmyr Gibbs,RB,DET,100.0,8,1,1,0
+8,Ja'Marr Chase,WR,CIN,100.0,8,1,1,0
+8,Bijan Robinson,RB,ATL,100.0,8,1,1,0
+8,Puka Nacua,WR,LAR,100.0,8,1,1,0
+8,Christian McCaffrey,RB,SF,100.0,8,1,1,0
+8,Jonathan Taylor,RB,IND,100.0,8,1,1,0
+8,Amon-Ra St. Brown,WR,DET,100.0,8,1,1,0
+8,Jaxon Smith-Njigba,WR,SEA,100.0,8,1,1,0
+8,James Cook III,RB,BUF,100.0,8,1,2,1
+8,CeeDee Lamb,WR,DAL,100.0,8,1,2,1
+8,De'Von Achane,RB,MIA,100.0,8,1,2,1
+8,Justin Jefferson,WR,MIN,100.0,8,1,2,1
+8,Ashton Jeanty,RB,LV,100.0,8,1,2,1
+8,A.J. Brown,WR,NE,100.0,8,1,2,1
+8,Drake London,WR,ATL,100.0,8,1,2,1
+8,Derrick Henry,RB,BAL,100.0,8,1,3,2
+8,Chase Brown,RB,CIN,100.0,8,1,3,2
+8,Nico Collins,WR,HOU,100.0,8,2,3,1
+8,Rashee Rice,WR,KC,100.0,8,2,3,1
+8,Chris Olave,WR,NO,100.0,8,2,3,1
+9,Jahmyr Gibbs,RB,DET,100.0,8,1,1,0
+9,Ja'Marr Chase,WR,CIN,100.0,8,1,1,0
+9,Bijan Robinson,RB,ATL,100.0,8,1,1,0
+9,Puka Nacua,WR,LAR,100.0,8,1,1,0
+9,Christian McCaffrey,RB,SF,100.0,8,1,1,0
+9,Jonathan Taylor,RB,IND,100.0,8,1,1,0
+9,Amon-Ra St. Brown,WR,DET,100.0,8,1,1,0
+9,Jaxon Smith-Njigba,WR,SEA,100.0,8,1,1,0
+9,James Cook III,RB,BUF,100.0,8,1,2,1
+9,CeeDee Lamb,WR,DAL,100.0,8,1,2,1
+9,De'Von Achane,RB,MIA,100.0,8,1,2,1
+9,Justin Jefferson,WR,MIN,100.0,8,1,2,1
+9,Ashton Jeanty,RB,LV,100.0,8,1,2,1
+9,A.J. Brown,WR,NE,100.0,8,1,2,1
+9,Drake London,WR,ATL,100.0,8,1,2,1
+9,Derrick Henry,RB,BAL,100.0,8,1,3,2
+9,Chase Brown,RB,CIN,100.0,8,1,3,2
+9,Nico Collins,WR,HOU,100.0,8,2,3,1
+9,Rashee Rice,WR,KC,100.0,8,2,3,1
+9,Chris Olave,WR,NO,100.0,8,2,3,1
+10,Jahmyr Gibbs,RB,DET,100.0,8,1,1,0
+10,Ja'Marr Chase,WR,CIN,100.0,8,1,1,0
+10,Bijan Robinson,RB,ATL,100.0,8,1,1,0
+10,Puka Nacua,WR,LAR,100.0,8,1,1,0
+10,Christian McCaffrey,RB,SF,100.0,8,1,1,0
+10,Jonathan Taylor,RB,IND,100.0,8,1,1,0
+10,Amon-Ra St. Brown,WR,DET,100.0,8,1,1,0
+10,Jaxon Smith-Njigba,WR,SEA,100.0,8,1,1,0
+10,James Cook III,RB,BUF,100.0,8,1,2,1
+10,CeeDee Lamb,WR,DAL,100.0,8,1,2,1
+10,De'Von Achane,RB,MIA,100.0,8,1,2,1
+10,Justin Jefferson,WR,MIN,100.0,8,1,2,1
+10,Ashton Jeanty,RB,LV,100.0,8,1,2,1
+10,A.J. Brown,WR,NE,100.0,8,1,2,1
+10,Drake London,WR,ATL,100.0,8,1,2,1
+10,Derrick Henry,RB,BAL,100.0,8,1,3,2
+10,Chase Brown,RB,CIN,100.0,8,1,3,2
+10,Nico Collins,WR,HOU,100.0,8,2,3,1
+10,Rashee Rice,WR,KC,100.0,8,2,3,1
+10,Chris Olave,WR,NO,100.0,8,2,3,1
+11,Jahmyr Gibbs,RB,DET,100.0,8,1,1,0
+11,Ja'Marr Chase,WR,CIN,100.0,8,1,1,0
+11,Bijan Robinson,RB,ATL,100.0,8,1,1,0
+11,Puka Nacua,WR,LAR,100.0,8,1,1,0
+11,Christian McCaffrey,RB,SF,100.0,8,1,1,0
+11,Jonathan Taylor,RB,IND,100.0,8,1,1,0
+11,Amon-Ra St. Brown,WR,DET,100.0,8,1,1,0
+11,Jaxon Smith-Njigba,WR,SEA,100.0,8,1,1,0
+11,James Cook III,RB,BUF,100.0,8,1,2,1
+11,CeeDee Lamb,WR,DAL,100.0,8,1,2,1
+11,De'Von Achane,RB,MIA,100.0,8,1,2,1
+11,Justin Jefferson,WR,MIN,100.0,8,1,2,1
+11,Ashton Jeanty,RB,LV,100.0,8,1,2,1
+11,A.J. Brown,WR,NE,100.0,8,1,2,1
+11,Drake London,WR,ATL,100.0,8,1,2,1
+11,Derrick Henry,RB,BAL,100.0,8,1,3,2
+11,Chase Brown,RB,CIN,100.0,8,1,3,2
+11,Nico Collins,WR,HOU,100.0,8,2,3,1
+11,Rashee Rice,WR,KC,100.0,8,2,3,1
+11,Chris Olave,WR,NO,100.0,8,2,3,1
+12,Jahmyr Gibbs,RB,DET,100.0,8,1,1,0
+12,Ja'Marr Chase,WR,CIN,100.0,8,1,1,0
+12,Bijan Robinson,RB,ATL,100.0,8,1,1,0
+12,Puka Nacua,WR,LAR,100.0,8,1,1,0
+12,Christian McCaffrey,RB,SF,100.0,8,1,1,0
+12,Jonathan Taylor,RB,IND,100.0,8,1,1,0
+12,Amon-Ra St. Brown,WR,DET,100.0,8,1,1,0
+12,Jaxon Smith-Njigba,WR,SEA,100.0,8,1,1,0
+12,James Cook III,RB,BUF,100.0,8,1,2,1
+12,CeeDee Lamb,WR,DAL,100.0,8,1,2,1
+12,De'Von Achane,RB,MIA,100.0,8,1,2,1
+12,Justin Jefferson,WR,MIN,100.0,8,1,2,1
+12,Ashton Jeanty,RB,LV,100.0,8,1,2,1
+12,A.J. Brown,WR,NE,100.0,8,1,2,1
+12,Drake London,WR,ATL,100.0,8,1,2,1
+12,Derrick Henry,RB,BAL,100.0,8,1,3,2
+12,Chase Brown,RB,CIN,100.0,8,1,3,2
+12,Nico Collins,WR,HOU,100.0,8,2,3,1
+12,Rashee Rice,WR,KC,100.0,8,2,3,1
+12,Chris Olave,WR,NO,100.0,8,2,3,1
+13,Jahmyr Gibbs,RB,DET,100.0,8,1,1,0
+13,Ja'Marr Chase,WR,CIN,100.0,8,1,1,0
+13,Bijan Robinson,RB,ATL,100.0,8,1,1,0
+13,Puka Nacua,WR,LAR,100.0,8,1,1,0
+13,Christian McCaffrey,RB,SF,100.0,8,1,1,0
+13,Jonathan Taylor,RB,IND,100.0,8,1,1,0
+13,Amon-Ra St. Brown,WR,DET,100.0,8,1,1,0
+13,Jaxon Smith-Njigba,WR,SEA,100.0,8,1,1,0
+13,James Cook III,RB,BUF,100.0,8,1,2,1
+13,CeeDee Lamb,WR,DAL,100.0,8,1,2,1
+13,De'Von Achane,RB,MIA,100.0,8,1,2,1
+13,Justin Jefferson,WR,MIN,100.0,8,1,2,1
+13,Ashton Jeanty,RB,LV,100.0,8,1,2,1
+13,A.J. Brown,WR,NE,100.0,8,1,2,1
+13,Drake London,WR,ATL,100.0,8,1,2,1
+13,Derrick Henry,RB,BAL,100.0,8,1,3,2
+13,Chase Brown,RB,CIN,100.0,8,1,3,2
+13,Nico Collins,WR,HOU,100.0,8,2,3,1
+13,Rashee Rice,WR,KC,100.0,8,2,3,1
+13,Chris Olave,WR,NO,100.0,8,2,3,1
+14,Jahmyr Gibbs,RB,DET,100.0,8,1,1,0
+14,Ja'Marr Chase,WR,CIN,100.0,8,1,1,0
+14,Bijan Robinson,RB,ATL,100.0,8,1,1,0
+14,Puka Nacua,WR,LAR,100.0,8,1,1,0
+14,Christian McCaffrey,RB,SF,100.0,8,1,1,0
+14,Jonathan Taylor,RB,IND,100.0,8,1,1,0
+14,Amon-Ra St. Brown,WR,DET,100.0,8,1,1,0
+14,Jaxon Smith-Njigba,WR,SEA,100.0,8,1,1,0
+14,James Cook III,RB,BUF,100.0,8,1,2,1
+14,CeeDee Lamb,WR,DAL,100.0,8,1,2,1
+14,De'Von Achane,RB,MIA,100.0,8,1,2,1
+14,Justin Jefferson,WR,MIN,100.0,8,1,2,1
+14,Ashton Jeanty,RB,LV,100.0,8,1,2,1
+14,A.J. Brown,WR,NE,100.0,8,1,2,1
+14,Drake London,WR,ATL,100.0,8,1,2,1
+14,Derrick Henry,RB,BAL,100.0,8,1,3,2
+14,Chase Brown,RB,CIN,100.0,8,1,3,2
+14,Nico Collins,WR,HOU,100.0,8,2,3,1
+14,Rashee Rice,WR,KC,100.0,8,2,3,1
+14,Chris Olave,WR,NO,100.0,8,2,3,1
+15,Jahmyr Gibbs,RB,DET,100.0,8,1,1,0
+15,Ja'Marr Chase,WR,CIN,100.0,8,1,1,0
+15,Bijan Robinson,RB,ATL,100.0,8,1,1,0
+15,Puka Nacua,WR,LAR,100.0,8,1,1,0
+15,Christian McCaffrey,RB,SF,100.0,8,1,1,0
+15,Jonathan Taylor,RB,IND,100.0,8,1,1,0
+15,Amon-Ra St. Brown,WR,DET,100.0,8,1,1,0
+15,Jaxon Smith-Njigba,WR,SEA,100.0,8,1,1,0
+15,James Cook III,RB,BUF,100.0,8,1,2,1
+15,CeeDee Lamb,WR,DAL,100.0,8,1,2,1
+15,De'Von Achane,RB,MIA,100.0,8,1,2,1
+15,Justin Jefferson,WR,MIN,100.0,8,1,2,1
+15,Ashton Jeanty,RB,LV,100.0,8,1,2,1
+15,A.J. Brown,WR,NE,100.0,8,1,2,1
+15,Drake London,WR,ATL,100.0,8,1,2,1
+15,Derrick Henry,RB,BAL,100.0,8,1,3,2
+15,Chase Brown,RB,CIN,100.0,8,1,3,2
+15,Nico Collins,WR,HOU,100.0,8,2,3,1
+15,Rashee Rice,WR,KC,100.0,8,2,3,1
+15,Chris Olave,WR,NO,100.0,8,2,3,1
+16,Jahmyr Gibbs,RB,DET,100.0,8,1,1,0
+16,Ja'Marr Chase,WR,CIN,100.0,8,1,1,0
+16,Bijan Robinson,RB,ATL,100.0,8,1,1,0
+16,Puka Nacua,WR,LAR,100.0,8,1,1,0
+16,Christian McCaffrey,RB,SF,100.0,8,1,1,0
+16,Jonathan Taylor,RB,IND,100.0,8,1,1,0
+16,Amon-Ra St. Brown,WR,DET,100.0,8,1,1,0
+16,Jaxon Smith-Njigba,WR,SEA,100.0,8,1,1,0
+16,James Cook III,RB,BUF,100.0,8,1,2,1
+16,CeeDee Lamb,WR,DAL,100.0,8,1,2,1
+16,De'Von Achane,RB,MIA,100.0,8,1,2,1
+16,Justin Jefferson,WR,MIN,100.0,8,1,2,1
+16,Ashton Jeanty,RB,LV,100.0,8,1,2,1
+16,A.J. Brown,WR,NE,100.0,8,1,2,1
+16,Drake London,WR,ATL,100.0,8,1,2,1
+16,Derrick Henry,RB,BAL,100.0,8,1,3,2
+16,Chase Brown,RB,CIN,100.0,8,1,3,2
+16,Nico Collins,WR,HOU,100.0,8,2,3,1
+16,Rashee Rice,WR,KC,100.0,8,2,3,1
+16,Chris Olave,WR,NO,100.0,8,2,3,1
