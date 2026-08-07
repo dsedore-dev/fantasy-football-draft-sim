@@ -1120,6 +1120,10 @@ def _render_landing_page():
                 f'</div>',
                 unsafe_allow_html=True,
             )
+            if st.button("View", key=f"landing_team_logo_{team.get('team_id', i)}", width="stretch"):
+                st.session_state.team_view_team_id = team.get("team_id")
+                st.session_state.app_page = "Team views"
+                st.rerun()
 
     card_cols_top = st.columns(2, gap="small")
     with card_cols_top[0]:
