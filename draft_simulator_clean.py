@@ -1671,7 +1671,7 @@ def _render_profiles_page():
     corr_df = filtered_profiles_df.copy()
     corr_df["Final Rank"] = pd.to_numeric(corr_df["Final Rank"], errors="coerce")
     corr_df = corr_df[corr_df["Final Rank"].notna()].copy()
-    if len(corr_df) >= 4:
+    if len(corr_df) >= 3:
         max_rank = float(corr_df["Final Rank"].max())
         corr_df["Outcome Score"] = (max_rank + 1) - corr_df["Final Rank"]
         feature_cols = [
@@ -1721,7 +1721,7 @@ def _render_profiles_page():
         )
         st.dataframe(corr_out, hide_index=True)
     else:
-        st.info("Not enough completed season rows to calculate reliable correlation yet.")
+        st.info("Not enough completed season rows (need at least 3) to calculate correlation.")
 
 
 def _render_team_views_hub():
