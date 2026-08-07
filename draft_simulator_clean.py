@@ -1198,12 +1198,29 @@ def _render_draft_research_page():
 
 def _default_season_selection():
     cy = datetime.now().year
-    return [s for s in [cy, cy - 1, cy - 2] if s >= 2018]
+    return [s for s in [2023, 2024, 2025] if 2018 <= s <= cy]
 
 
 def _default_team_view_season_selection():
-    cy = datetime.now().year
-    return [s for s in [cy, cy - 1, cy - 2, cy - 3] if s >= 2018]
+    return _default_season_selection()
+
+
+def _ensure_season_multiselect_default(key, desired_defaults):
+    desired = sorted(set(int(s) for s in desired_defaults))
+    current = st.session_state.get(key)
+    if current is None:
+        st.session_state[key] = desired
+        return
+    try:
+        current_norm = sorted(set(int(s) for s in current))
+    except Exception:
+        st.session_state[key] = desired
+        return
+
+    # Migrate old default selection (2024, 2025, 2026) to new default (2023, 2024, 2025).
+    old_default = sorted([s for s in [2024, 2025, 2026] if 2018 <= s <= datetime.now().year])
+    if current_norm == old_default:
+        st.session_state[key] = desired
 
 
 def _build_fallback_league_rows(seasons):
@@ -1278,6 +1295,7 @@ def _render_league_history_page():
 
     cy = datetime.now().year
     season_options = list(range(cy, 2017, -1))
+    _ensure_season_multiselect_default("league_hist_seasons", _default_season_selection())
     selected_seasons = st.multiselect(
         "Seasons",
         options=season_options,
@@ -1510,6 +1528,7 @@ def _render_profiles_page():
 
     cy = datetime.now().year
     season_options = list(range(cy, 2017, -1))
+    _ensure_season_multiselect_default("profiles_seasons", _default_season_selection())
     selected_seasons = st.multiselect(
         "Seasons",
         options=season_options,
@@ -1799,6 +1818,7 @@ def _render_team_history_page(preselected_team=None):
     cy = datetime.now().year
     season_options = list(range(cy, 2017, -1))
     season_key = f"team_hist_seasons_{selected_team.get('team_id', 'default')}"
+    _ensure_season_multiselect_default(season_key, _default_team_view_season_selection())
     selected_seasons = st.multiselect(
         "Seasons",
         options=season_options,
