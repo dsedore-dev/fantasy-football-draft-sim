@@ -64,6 +64,48 @@ st.markdown(
         border-radius:12px;
         padding:0.9rem 1rem 1.1rem 1rem;
     }
+    .draft-status-banner{
+        background:linear-gradient(135deg,#1e3a5f,#0ea5e9);
+        border-radius:14px;
+        padding:18px 24px;
+        margin-bottom:12px;
+        display:flex;
+        align-items:center;
+        gap:32px;
+        flex-wrap:wrap;
+    }
+    .draft-status-section{
+        text-align:center;
+    }
+    .draft-status-divider{
+        width:2px;
+        background:#38bdf8;
+        height:50px;
+    }
+    @media (max-width: 768px){
+        div[data-testid="stAppViewContainer"] > .main > div.block-container{
+            padding:0.7rem 0.6rem 1rem 0.6rem;
+        }
+        .draft-status-banner{
+            gap:10px;
+            padding:12px 12px;
+        }
+        .draft-status-section{
+            flex:1 1 45%;
+            min-width:130px;
+        }
+        .draft-status-divider{
+            display:none;
+        }
+        .draft-status-section .draft-value-lg{
+            font-size:26px !important;
+            line-height:1.1;
+        }
+        .draft-status-section .draft-value-md{
+            font-size:18px !important;
+            line-height:1.1;
+        }
+    }
     </style>
     """,
     unsafe_allow_html=True,
@@ -172,6 +214,16 @@ def _get_local_secret(name):
     return str(os.getenv(name, "")).strip()
 
 
+def is_mobile_client():
+    try:
+        headers = getattr(st.context, "headers", {}) or {}
+        user_agent = str(headers.get("User-Agent") or headers.get("user-agent") or "").lower()
+    except Exception:
+        user_agent = ""
+    mobile_tokens = ("iphone", "android", "mobile", "ipad", "ipod")
+    return any(token in user_agent for token in mobile_tokens)
+
+
 # Initialize session state
 if "draft_started" not in st.session_state:
     st.session_state.draft_started = False
@@ -209,6 +261,8 @@ if "app_page" not in st.session_state:
     st.session_state.app_page = "Landing"
 if "team_view_team_id" not in st.session_state:
     st.session_state.team_view_team_id = None
+if "draft_board_layout" not in st.session_state:
+    st.session_state.draft_board_layout = "Mobile" if is_mobile_client() else "Desktop"
 
 
 ROSTER_REQUIREMENTS = {
@@ -363,6 +417,54 @@ def resolve_team_logo_src(logo_url, espn_s2="", swid="", fallback_logo=""):
         return f"data:{content_type};base64,{encoded}"
     except Exception:
         return fallback or url
+
+
+@st.cache_data(ttl=21600, show_spinner=False)
+def load_player_headshot_maps():
+    image_path = Path("data/player_images.csv")
+    if not image_path.exists():
+        return {}, {}
+    df_images = pd.read_csv(image_path, usecols=["Player", "Headshot_URL"])
+    df_images = df_images.dropna(subset=["Player"]).copy()
+    df_images["Player"] = df_images["Player"].astype(str).str.strip()
+    df_images["Headshot_URL"] = df_images["Headshot_URL"].astype(str).str.strip()
+    df_images = df_images[(df_images["Headshot_URL"] != "") & (df_images["Headshot_URL"].str.lower() != "nan")]
+    exact = dict(zip(df_images["Player"], df_images["Headshot_URL"]))
+    normalized = {}
+    for player, url in exact.items():
+        key = normalize_player_name(player)
+        if key and key not in normalized:
+            normalized[key] = url
+    return exact, normalized
+
+
+@st.cache_data(ttl=21600, show_spinner=False)
+def resolve_player_headshot_src(headshot_url):
+    url = str(headshot_url or "").strip()
+    if not url or not url.startswith("http"):
+        return ""
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0", "Accept": "image/*"})
+        with urllib.request.urlopen(req, timeout=12) as response:
+            raw = response.read()
+            content_type = response.headers.get("Content-Type", "image/png").split(";")[0].strip() or "image/png"
+        if raw and content_type.lower().startswith("image/"):
+            encoded = base64.b64encode(raw).decode("ascii")
+            return f"data:{content_type};base64,{encoded}"
+    except Exception:
+        pass
+    return url
+
+
+def get_player_headshot_src(player):
+    row_url = str(player.get("Headshot_URL", "") or "").strip()
+    if not row_url or row_url.lower() == "nan":
+        player_name = str(player.get("Player", "") or "").strip()
+        exact_map, normalized_map = load_player_headshot_maps()
+        row_url = exact_map.get(player_name, "")
+        if not row_url and player_name:
+            row_url = normalized_map.get(normalize_player_name(player_name), "")
+    return resolve_player_headshot_src(row_url)
 
 
 @st.cache_data(ttl=1800, show_spinner=False)
@@ -2422,30 +2524,30 @@ else:
     )
     current_pick_banner = get_pick_number(current_round_banner, draft_slot_banner)
     st.markdown(
-        f"""<div style="background:linear-gradient(135deg,#1e3a5f,#0ea5e9);border-radius:14px;padding:18px 24px;margin-bottom:12px;display:flex;align-items:center;gap:32px;flex-wrap:wrap;">
-            <div style="text-align:center;">
+        f"""<div class="draft-status-banner">
+            <div class="draft-status-section">
                 <div style="font-size:13px;color:#bae6fd;font-weight:600;letter-spacing:1px;">SLOT</div>
-                <div style="font-size:36px;font-weight:900;color:#fff;">#{draft_slot_banner}</div>
+                <div class="draft-value-lg" style="font-size:36px;font-weight:900;color:#fff;">#{draft_slot_banner}</div>
             </div>
-            <div style="width:2px;background:#38bdf8;height:50px;"></div>
-            <div style="text-align:center;">
+            <div class="draft-status-divider"></div>
+            <div class="draft-status-section">
                 <div style="font-size:13px;color:#bae6fd;font-weight:600;letter-spacing:1px;">ROUND</div>
-                <div style="font-size:36px;font-weight:900;color:#fbbf24;">{current_round_banner} <span style="font-size:16px;color:#bae6fd;">of 16</span></div>
+                <div class="draft-value-lg" style="font-size:36px;font-weight:900;color:#fbbf24;">{current_round_banner} <span style="font-size:16px;color:#bae6fd;">of 16</span></div>
             </div>
-            <div style="width:2px;background:#38bdf8;height:50px;"></div>
-            <div style="text-align:center;">
+            <div class="draft-status-divider"></div>
+            <div class="draft-status-section">
                 <div style="font-size:13px;color:#bae6fd;font-weight:600;letter-spacing:1px;">YOUR PICK #</div>
-                <div style="font-size:36px;font-weight:900;color:#4ade80;">{current_pick_banner}</div>
+                <div class="draft-value-lg" style="font-size:36px;font-weight:900;color:#4ade80;">{current_pick_banner}</div>
             </div>
-            <div style="width:2px;background:#38bdf8;height:50px;"></div>
-            <div style="text-align:center;">
+            <div class="draft-status-divider"></div>
+            <div class="draft-status-section">
                 <div style="font-size:13px;color:#bae6fd;font-weight:600;letter-spacing:1px;">STRATEGY</div>
-                <div style="font-size:20px;font-weight:800;color:#f9a8d4;">{strategy_banner}</div>
+                <div class="draft-value-md" style="font-size:20px;font-weight:800;color:#f9a8d4;">{strategy_banner}</div>
             </div>
-            <div style="width:2px;background:#38bdf8;height:50px;"></div>
-            <div style="text-align:center;">
+            <div class="draft-status-divider"></div>
+            <div class="draft-status-section">
                 <div style="font-size:13px;color:#bae6fd;font-weight:600;letter-spacing:1px;">TEAM</div>
-                <div style="font-size:20px;font-weight:800;color:#fef08a;">{selected_team_name_banner}</div>
+                <div class="draft-value-md" style="font-size:20px;font-weight:800;color:#fef08a;">{selected_team_name_banner}</div>
             </div>
         </div>""",
         unsafe_allow_html=True
@@ -2536,98 +2638,173 @@ else:
         if available.empty:
             st.warning("No realistic targets in this strict ADP window for this pick.")
         else:
-            cols_display = st.columns([0.5, 0.8, 3, 0.9, 1, 1, 1, 1, 1, 1, 1])
-            with cols_display[0]:
-                st.write("**#**")
-            with cols_display[1]:
-                st.write("")
-            with cols_display[2]:
-                st.write("**Player**")
-            with cols_display[3]:
-                st.write("**Info**")
-            with cols_display[4]:
-                st.write("**Pos**")
-            with cols_display[5]:
-                st.write("**Team**")
-            with cols_display[6]:
-                st.write("**Pick #**")
-            with cols_display[7]:
-                st.write("**Avg ADP**")
-            with cols_display[8]:
-                st.write("**Fit**")
-            with cols_display[9]:
-                st.write("**Strategy**")
-            with cols_display[10]:
-                st.write("**Action**")
-
-            st.divider()
-
             needed_pos_set = {pos for pos in ["QB", "RB", "WR", "TE", "DEF", "K"] if remaining_starters[pos] > 0}
             if remaining_flex > 0:
                 needed_pos_set.update({"RB", "WR", "TE"})
 
-            for idx, (_, player) in enumerate(available.head(25).iterrows(), 1):
-                cols = st.columns([0.5, 0.8, 3, 0.9, 1, 1, 1, 1, 1, 1, 1])
-                team = str(player.get('Team', '')).strip()
-                team_slug = team.lower().replace('jac', 'jax').replace('was', 'wsh')
-                with cols[0]:
-                    st.write(f"{idx}")
-                with cols[1]:
-                    headshot = player.get('Headshot_URL', '')
+            board_layout = st.segmented_control(
+                "Draft board layout",
+                options=["Desktop", "Mobile"],
+                default=st.session_state.get("draft_board_layout", "Mobile" if is_mobile_client() else "Desktop"),
+                key="draft_board_layout",
+            )
+
+            if board_layout == "Desktop":
+                cols_display = st.columns([0.5, 0.8, 3, 0.9, 1, 1, 1, 1, 1, 1, 1])
+                with cols_display[0]:
+                    st.write("**#**")
+                with cols_display[1]:
+                    st.write("")
+                with cols_display[2]:
+                    st.write("**Player**")
+                with cols_display[3]:
+                    st.write("**Info**")
+                with cols_display[4]:
+                    st.write("**Pos**")
+                with cols_display[5]:
+                    st.write("**Team**")
+                with cols_display[6]:
+                    st.write("**Pick #**")
+                with cols_display[7]:
+                    st.write("**Avg ADP**")
+                with cols_display[8]:
+                    st.write("**Fit**")
+                with cols_display[9]:
+                    st.write("**Strategy**")
+                with cols_display[10]:
+                    st.write("**Action**")
+                st.divider()
+
+                for idx, (_, player) in enumerate(available.head(25).iterrows(), 1):
+                    cols = st.columns([0.5, 0.8, 3, 0.9, 1, 1, 1, 1, 1, 1, 1])
+                    team = str(player.get('Team', '')).strip()
+                    team_slug = team.lower().replace('jac', 'jax').replace('was', 'wsh')
+                    with cols[0]:
+                        st.write(f"{idx}")
+                    with cols[1]:
+                        is_defense = str(player.get('Position', '')).strip().upper() == 'DEF'
+                        player_headshot_src = get_player_headshot_src(player)
+                        if is_defense and team and team != 'nan':
+                            st.markdown(
+                                f'<img src="https://a.espncdn.com/i/teamlogos/nfl/500/{team_slug}.png" width="40" height="40" '
+                                f'style="object-fit:contain;">',
+                                unsafe_allow_html=True
+                            )
+                        elif player_headshot_src:
+                            st.image(player_headshot_src, width=40)
+                        elif team and team != 'nan':
+                            st.markdown(
+                                f'<img src="https://a.espncdn.com/i/teamlogos/nfl/500/{team_slug}.png" width="40" height="40" '
+                                f'style="object-fit:contain;">',
+                                unsafe_allow_html=True
+                            )
+                        else:
+                            st.markdown('<div style="width:40px;height:40px;border-radius:50%;background:#e2e8f0;"></div>', unsafe_allow_html=True)
+                    with cols[2]:
+                        if bool(player.get('May_Not_Be_There', False)):
+                            st.markdown(f"<span style='color:#dc2626'><b>{player['Player']}</b></span>", unsafe_allow_html=True)
+                        else:
+                            st.write(f"**{player['Player']}**")
+                    with cols[3]:
+                        if st.button("INFO", key=f"info_{idx}_{player['Player']}", type="secondary"):
+                            st.session_state.selected_player_info = {
+                                "Player": str(player.get("Player", "")),
+                                "Team": str(player.get("Team", "")),
+                                "Position": str(player.get("Position", "")),
+                            }
+                            st.rerun()
+                    with cols[4]:
+                        st.write(player['Position'])
+                    with cols[5]:
+                        if team and team != 'nan':
+                            st.markdown(f'<img src="https://a.espncdn.com/i/teamlogos/nfl/500/{team_slug}.png" width="28" title="{team}" style="vertical-align:middle;">', unsafe_allow_html=True)
+                        else:
+                            st.write("—")
+                    with cols[6]:
+                        st.write(f"{current_pick}")
+                    with cols[7]:
+                        st.write(f"{player['Avg_ADP_Resolved']:.1f}" if pd.notna(player['Avg_ADP_Resolved']) else "—")
+                    with cols[8]:
+                        st.write("✅ Need" if player['Position'] in needed_pos_set else "—")
+                    with cols[9]:
+                        st.write(get_strategy_fit_label(player, strategy_row, st.session_state.current_round))
+                    with cols[10]:
+                        if st.button("PICK", key=f"pick_{idx}_{player['Player']}", type="primary"):
+                            st.session_state.drafted_players.append({
+                                'player': player['Player'],
+                                'pos': player['Position'],
+                                'team': player['Team'],
+                                'round': st.session_state.current_round,
+                                'adp': player.get('ADP_Resolved', player.get('Final_ADP', np.nan)),
+                                'avg_adp': player['Avg_ADP_Resolved'],
+                                'tier': player.get('Tier', np.nan),
+                                'pick_number': current_pick
+                            })
+                            st.session_state.selected_player_info = None
+                            st.session_state.current_round += 1
+                            st.rerun()
+            else:
+                for idx, (_, player) in enumerate(available.head(25).iterrows(), 1):
+                    team = str(player.get('Team', '')).strip()
+                    team_slug = team.lower().replace('jac', 'jax').replace('was', 'wsh')
                     is_defense = str(player.get('Position', '')).strip().upper() == 'DEF'
-                    if is_defense and team and team != 'nan':
-                        st.markdown(
-                            f'<img src="https://a.espncdn.com/i/teamlogos/nfl/500/{team_slug}.png" width="40" height="40" '
-                            f'style="object-fit:contain;">',
-                            unsafe_allow_html=True
+                    player_headshot_src = get_player_headshot_src(player)
+                    fit_txt = "✅ Need" if player['Position'] in needed_pos_set else "—"
+                    strat_txt = get_strategy_fit_label(player, strategy_row, st.session_state.current_round)
+                    may_gone = bool(player.get('May_Not_Be_There', False))
+
+                    st.markdown('<div style="background:#0f172a;border:1px solid #334155;border-radius:12px;padding:10px 10px 8px 10px;margin-bottom:8px;">', unsafe_allow_html=True)
+                    c1, c2 = st.columns([1, 4])
+                    with c1:
+                        if is_defense and team and team != 'nan':
+                            st.markdown(
+                                f'<img src="https://a.espncdn.com/i/teamlogos/nfl/500/{team_slug}.png" width="44" height="44" style="object-fit:contain;">',
+                                unsafe_allow_html=True
+                            )
+                        elif player_headshot_src:
+                            st.image(player_headshot_src, width=44)
+                        elif team and team != 'nan':
+                            st.markdown(
+                                f'<img src="https://a.espncdn.com/i/teamlogos/nfl/500/{team_slug}.png" width="44" height="44" style="object-fit:contain;">',
+                                unsafe_allow_html=True
+                            )
+                        else:
+                            st.markdown('<div style="width:44px;height:44px;border-radius:50%;background:#1f2937;"></div>', unsafe_allow_html=True)
+                    with c2:
+                        if may_gone:
+                            st.markdown(f"<span style='color:#ef4444;font-weight:800;'>#{idx} {player['Player']}</span>", unsafe_allow_html=True)
+                        else:
+                            st.markdown(f"**#{idx} {player['Player']}**")
+                        adp_txt = f"{float(player['Avg_ADP_Resolved']):.1f}" if pd.notna(player['Avg_ADP_Resolved']) else "—"
+                        st.caption(
+                            f"{player['Position']} • {team or '—'} | Pick {current_pick} | Avg ADP "
+                            f"{adp_txt} | {fit_txt} | Strategy {strat_txt}"
                         )
-                    elif headshot and str(headshot) != 'nan' and str(headshot).startswith('http'):
-                        st.markdown(f'<img src="{headshot}" width="40" height="40" style="border-radius:50%;object-fit:cover;border:1px solid #e2e8f0;">', unsafe_allow_html=True)
-                    else:
-                        st.markdown('<div style="width:40px;height:40px;border-radius:50%;background:#e2e8f0;"></div>', unsafe_allow_html=True)
-                with cols[2]:
-                    if bool(player.get('May_Not_Be_There', False)):
-                        st.markdown(f"<span style='color:#dc2626'><b>{player['Player']}</b></span>", unsafe_allow_html=True)
-                    else:
-                        st.write(f"**{player['Player']}**")
-                with cols[3]:
-                    if st.button("INFO", key=f"info_{idx}_{player['Player']}", type="secondary"):
-                        st.session_state.selected_player_info = {
-                            "Player": str(player.get("Player", "")),
-                            "Team": str(player.get("Team", "")),
-                            "Position": str(player.get("Position", "")),
-                        }
-                        st.rerun()
-                with cols[4]:
-                    st.write(player['Position'])
-                with cols[5]:
-                    if team and team != 'nan':
-                        st.markdown(f'<img src="https://a.espncdn.com/i/teamlogos/nfl/500/{team_slug}.png" width="28" title="{team}" style="vertical-align:middle;">', unsafe_allow_html=True)
-                    else:
-                        st.write("—")
-                with cols[6]:
-                    st.write(f"{current_pick}")
-                with cols[7]:
-                    st.write(f"{player['Avg_ADP_Resolved']:.1f}" if pd.notna(player['Avg_ADP_Resolved']) else "—")
-                with cols[8]:
-                    st.write("✅ Need" if player['Position'] in needed_pos_set else "—")
-                with cols[9]:
-                    st.write(get_strategy_fit_label(player, strategy_row, st.session_state.current_round))
-                with cols[10]:
-                    if st.button("PICK", key=f"pick_{idx}_{player['Player']}", type="primary"):
-                        st.session_state.drafted_players.append({
-                            'player': player['Player'],
-                            'pos': player['Position'],
-                            'team': player['Team'],
-                            'round': st.session_state.current_round,
-                            'adp': player.get('ADP_Resolved', player.get('Final_ADP', np.nan)),
-                            'avg_adp': player['Avg_ADP_Resolved'],
-                            'tier': player.get('Tier', np.nan),
-                            'pick_number': current_pick
-                        })
-                        st.session_state.selected_player_info = None
-                        st.session_state.current_round += 1
-                        st.rerun()
+                    a1, a2 = st.columns(2)
+                    with a1:
+                        if st.button("INFO", key=f"m_info_{idx}_{player['Player']}", type="secondary", width="stretch"):
+                            st.session_state.selected_player_info = {
+                                "Player": str(player.get("Player", "")),
+                                "Team": str(player.get("Team", "")),
+                                "Position": str(player.get("Position", "")),
+                            }
+                            st.rerun()
+                    with a2:
+                        if st.button("PICK", key=f"m_pick_{idx}_{player['Player']}", type="primary", width="stretch"):
+                            st.session_state.drafted_players.append({
+                                'player': player['Player'],
+                                'pos': player['Position'],
+                                'team': player['Team'],
+                                'round': st.session_state.current_round,
+                                'adp': player.get('ADP_Resolved', player.get('Final_ADP', np.nan)),
+                                'avg_adp': player['Avg_ADP_Resolved'],
+                                'tier': player.get('Tier', np.nan),
+                                'pick_number': current_pick
+                            })
+                            st.session_state.selected_player_info = None
+                            st.session_state.current_round += 1
+                            st.rerun()
+                    st.markdown("</div>", unsafe_allow_html=True)
 
             selected_info = st.session_state.get("selected_player_info")
             if selected_info:
