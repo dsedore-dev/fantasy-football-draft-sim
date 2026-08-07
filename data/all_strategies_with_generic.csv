@@ -4,7 +4,7 @@ Slot,Rank,Strategy_Name,Pattern,Description,Round1_Pick,Round2_Pick,Round3_Pick,
 1,3,RB-Heavy,Generic,"Load up on RBs early (rounds 1-3), then pivot to WR and depth later.",(Flexible),(Flexible),(Flexible),(Flexible),(Flexible),0.0,0.75,Generic,False
 1,4,WR-Heavy,Generic,"Prioritize elite WRs in rounds 1-3, grab RBs on the rebound in rounds 4-5.",(Flexible),(Flexible),(Flexible),(Flexible),(Flexible),0.0,0.75,Generic,False
 1,5,Zero-RB,Generic,"Skip RB in R1-R2, focus on elite WRs and TE, grab RB value in R3-R4.",(Flexible),(Flexible),(Flexible),(Flexible),(Flexible),0.0,0.7,Generic,False
-1,6,RB-WR-RB-WR-RB Mix,RB-WR-RB-WR-RB,Pattern-based strategy: RB-WR-RB-WR-RB,Jahmyr Gibbs,Drake London,Kyren Williams,Terry McLaurin,Quinshon Judkins,26.699333333333332,0.001997737422238,Data-Driven,False
+1,6,RB-WR-RB-WR-RB Mix,RB-WR-RB-WR-RB,Pattern-based strategy: RB-WR-RB-WR-RB,Jahmyr Gibbs,Drake London,Kyren Williams,Terry McLaurin,Quinshon Judkins,26.69933333333333,0.001997737422238,Data-Driven,False
 1,7,WR-RB-WR-RB-RB Mix,WR-RB-WR-RB-RB,Pattern-based strategy: WR-RB-WR-RB-RB,Ja'Marr Chase,Saquon Barkley,DeVonta Smith,D'Andre Swift,Bhayshul Tuten,29.99333333333333,0.001692871929213,Data-Driven,False
 1,8,RB-RB-WR-RB-WR Mix,RB-RB-WR-RB-WR,Pattern-based strategy: RB-RB-WR-RB-WR,De'Von Achane,Jeremiyah Love,Garrett Wilson,Quinshon Judkins,Michael Pittman Jr.,33.63666666666667,0.0015932665604422,Data-Driven,False
 1,9,WR-RB-RB-WR-RB Mix,WR-RB-RB-WR-RB,Pattern-based strategy: WR-RB-RB-WR-RB,Drake London,James Cook III,Javonte Williams,Ladd McConkey,Jaylen Warren,36.48333333333333,0.001462693969274,Data-Driven,False
@@ -14,7 +14,7 @@ Slot,Rank,Strategy_Name,Pattern,Description,Round1_Pick,Round2_Pick,Round3_Pick,
 2,3,RB-Heavy,Generic,"Load up on RBs early (rounds 1-3), then pivot to WR and depth later.",(Flexible),(Flexible),(Flexible),(Flexible),(Flexible),0.0,0.75,Generic,False
 2,4,WR-Heavy,Generic,"Prioritize elite WRs in rounds 1-3, grab RBs on the rebound in rounds 4-5.",(Flexible),(Flexible),(Flexible),(Flexible),(Flexible),0.0,0.75,Generic,False
 2,5,Zero-RB,Generic,"Skip RB in R1-R2, focus on elite WRs and TE, grab RB value in R3-R4.",(Flexible),(Flexible),(Flexible),(Flexible),(Flexible),0.0,0.7,Generic,False
-2,6,RB-WR-RB-WR-RB Mix,RB-WR-RB-WR-RB,Pattern-based strategy: RB-WR-RB-WR-RB,Jahmyr Gibbs,Drake London,Kyren Williams,Terry McLaurin,Quinshon Judkins,26.699333333333332,0.001997737422238,Data-Driven,False
+2,6,RB-WR-RB-WR-RB Mix,RB-WR-RB-WR-RB,Pattern-based strategy: RB-WR-RB-WR-RB,Jahmyr Gibbs,Drake London,Kyren Williams,Terry McLaurin,Quinshon Judkins,26.69933333333333,0.001997737422238,Data-Driven,False
 2,7,WR-RB-WR-RB-RB Mix,WR-RB-WR-RB-RB,Pattern-based strategy: WR-RB-WR-RB-RB,Ja'Marr Chase,Saquon Barkley,DeVonta Smith,D'Andre Swift,Bhayshul Tuten,29.99333333333333,0.001692871929213,Data-Driven,False
 2,8,RB-RB-WR-RB-WR Mix,RB-RB-WR-RB-WR,Pattern-based strategy: RB-RB-WR-RB-WR,De'Von Achane,Jeremiyah Love,Garrett Wilson,Quinshon Judkins,Michael Pittman Jr.,33.63666666666667,0.0015932665604422,Data-Driven,False
 2,9,WR-RB-RB-WR-RB Mix,WR-RB-RB-WR-RB,Pattern-based strategy: WR-RB-RB-WR-RB,Drake London,James Cook III,Javonte Williams,Ladd McConkey,Jaylen Warren,36.48333333333333,0.001462693969274,Data-Driven,False
@@ -24,7 +24,7 @@ Slot,Rank,Strategy_Name,Pattern,Description,Round1_Pick,Round2_Pick,Round3_Pick,
 3,3,RB-Heavy,Generic,"Load up on RBs early (rounds 1-3), then pivot to WR and depth later.",(Flexible),(Flexible),(Flexible),(Flexible),(Flexible),0.0,0.75,Generic,False
 3,4,WR-Heavy,Generic,"Prioritize elite WRs in rounds 1-3, grab RBs on the rebound in rounds 4-5.",(Flexible),(Flexible),(Flexible),(Flexible),(Flexible),0.0,0.75,Generic,False
 3,5,Zero-RB,Generic,"Skip RB in R1-R2, focus on elite WRs and TE, grab RB value in R3-R4.",(Flexible),(Flexible),(Flexible),(Flexible),(Flexible),0.0,0.7,Generic,False
-3,6,RB-WR-RB-WR-RB Mix,RB-WR-RB-WR-RB,Pattern-based strategy: RB-WR-RB-WR-RB,Jahmyr Gibbs,Drake London,Kyren Williams,Terry McLaurin,Quinshon Judkins,26.699333333333332,0.001997737422238,Data-Driven,False
+3,6,RB-WR-RB-WR-RB Mix,RB-WR-RB-WR-RB,Pattern-based strategy: RB-WR-RB-WR-RB,Jahmyr Gibbs,Drake London,Kyren Williams,Terry McLaurin,Quinshon Judkins,26.69933333333333,0.001997737422238,Data-Driven,False
 3,7,WR-RB-WR-RB-RB Mix,WR-RB-WR-RB-RB,Pattern-based strategy: WR-RB-WR-RB-RB,Ja'Marr Chase,Saquon Barkley,DeVonta Smith,D'Andre Swift,Bhayshul Tuten,29.99333333333333,0.001692871929213,Data-Driven,False
 3,8,RB-RB-WR-RB-WR Mix,RB-RB-WR-RB-WR,Pattern-based strategy: RB-RB-WR-RB-WR,De'Von Achane,Jeremiyah Love,Garrett Wilson,Quinshon Judkins,Michael Pittman Jr.,33.63666666666667,0.0015932665604422,Data-Driven,False
 3,9,WR-RB-RB-WR-RB Mix,WR-RB-RB-WR-RB,Pattern-based strategy: WR-RB-RB-WR-RB,Drake London,James Cook III,Javonte Williams,Ladd McConkey,Jaylen Warren,36.48333333333333,0.001462693969274,Data-Driven,False
@@ -34,7 +34,7 @@ Slot,Rank,Strategy_Name,Pattern,Description,Round1_Pick,Round2_Pick,Round3_Pick,
 4,3,RB-Heavy,Generic,"Load up on RBs early (rounds 1-3), then pivot to WR and depth later.",(Flexible),(Flexible),(Flexible),(Flexible),(Flexible),0.0,0.75,Generic,False
 4,4,WR-Heavy,Generic,"Prioritize elite WRs in rounds 1-3, grab RBs on the rebound in rounds 4-5.",(Flexible),(Flexible),(Flexible),(Flexible),(Flexible),0.0,0.75,Generic,False
 4,5,Zero-RB,Generic,"Skip RB in R1-R2, focus on elite WRs and TE, grab RB value in R3-R4.",(Flexible),(Flexible),(Flexible),(Flexible),(Flexible),0.0,0.7,Generic,False
-4,6,RB-WR-RB-WR-RB Mix,RB-WR-RB-WR-RB,Pattern-based strategy: RB-WR-RB-WR-RB,Jahmyr Gibbs,Drake London,Kyren Williams,Terry McLaurin,Quinshon Judkins,26.699333333333332,0.001997737422238,Data-Driven,False
+4,6,RB-WR-RB-WR-RB Mix,RB-WR-RB-WR-RB,Pattern-based strategy: RB-WR-RB-WR-RB,Jahmyr Gibbs,Drake London,Kyren Williams,Terry McLaurin,Quinshon Judkins,26.69933333333333,0.001997737422238,Data-Driven,False
 4,7,WR-RB-WR-RB-RB Mix,WR-RB-WR-RB-RB,Pattern-based strategy: WR-RB-WR-RB-RB,Ja'Marr Chase,Saquon Barkley,DeVonta Smith,D'Andre Swift,Bhayshul Tuten,29.99333333333333,0.001692871929213,Data-Driven,False
 4,8,RB-RB-WR-RB-WR Mix,RB-RB-WR-RB-WR,Pattern-based strategy: RB-RB-WR-RB-WR,De'Von Achane,Jeremiyah Love,Garrett Wilson,Quinshon Judkins,Michael Pittman Jr.,33.63666666666667,0.0015932665604422,Data-Driven,False
 4,9,WR-RB-RB-WR-RB Mix,WR-RB-RB-WR-RB,Pattern-based strategy: WR-RB-RB-WR-RB,Drake London,James Cook III,Javonte Williams,Ladd McConkey,Jaylen Warren,36.48333333333333,0.001462693969274,Data-Driven,False
@@ -44,7 +44,7 @@ Slot,Rank,Strategy_Name,Pattern,Description,Round1_Pick,Round2_Pick,Round3_Pick,
 5,3,RB-Heavy,Generic,"Load up on RBs early (rounds 1-3), then pivot to WR and depth later.",(Flexible),(Flexible),(Flexible),(Flexible),(Flexible),0.0,0.75,Generic,False
 5,4,WR-Heavy,Generic,"Prioritize elite WRs in rounds 1-3, grab RBs on the rebound in rounds 4-5.",(Flexible),(Flexible),(Flexible),(Flexible),(Flexible),0.0,0.75,Generic,False
 5,5,Zero-RB,Generic,"Skip RB in R1-R2, focus on elite WRs and TE, grab RB value in R3-R4.",(Flexible),(Flexible),(Flexible),(Flexible),(Flexible),0.0,0.7,Generic,False
-5,6,RB-WR-RB-WR-RB Mix,RB-WR-RB-WR-RB,Pattern-based strategy: RB-WR-RB-WR-RB,Jahmyr Gibbs,Drake London,Kyren Williams,Terry McLaurin,Quinshon Judkins,26.699333333333332,0.001997737422238,Data-Driven,False
+5,6,RB-WR-RB-WR-RB Mix,RB-WR-RB-WR-RB,Pattern-based strategy: RB-WR-RB-WR-RB,Jahmyr Gibbs,Drake London,Kyren Williams,Terry McLaurin,Quinshon Judkins,26.69933333333333,0.001997737422238,Data-Driven,False
 5,7,WR-RB-WR-RB-RB Mix,WR-RB-WR-RB-RB,Pattern-based strategy: WR-RB-WR-RB-RB,Ja'Marr Chase,Saquon Barkley,DeVonta Smith,D'Andre Swift,Bhayshul Tuten,29.99333333333333,0.001692871929213,Data-Driven,False
 5,8,RB-RB-WR-RB-WR Mix,RB-RB-WR-RB-WR,Pattern-based strategy: RB-RB-WR-RB-WR,De'Von Achane,Jeremiyah Love,Garrett Wilson,Quinshon Judkins,Michael Pittman Jr.,33.63666666666667,0.0015932665604422,Data-Driven,False
 5,9,WR-RB-RB-WR-RB Mix,WR-RB-RB-WR-RB,Pattern-based strategy: WR-RB-RB-WR-RB,Drake London,James Cook III,Javonte Williams,Ladd McConkey,Jaylen Warren,36.48333333333333,0.001462693969274,Data-Driven,False
@@ -54,7 +54,7 @@ Slot,Rank,Strategy_Name,Pattern,Description,Round1_Pick,Round2_Pick,Round3_Pick,
 6,3,RB-Heavy,Generic,"Load up on RBs early (rounds 1-3), then pivot to WR and depth later.",(Flexible),(Flexible),(Flexible),(Flexible),(Flexible),0.0,0.75,Generic,False
 6,4,WR-Heavy,Generic,"Prioritize elite WRs in rounds 1-3, grab RBs on the rebound in rounds 4-5.",(Flexible),(Flexible),(Flexible),(Flexible),(Flexible),0.0,0.75,Generic,False
 6,5,Zero-RB,Generic,"Skip RB in R1-R2, focus on elite WRs and TE, grab RB value in R3-R4.",(Flexible),(Flexible),(Flexible),(Flexible),(Flexible),0.0,0.7,Generic,False
-6,6,RB-WR-RB-WR-RB Mix,RB-WR-RB-WR-RB,Pattern-based strategy: RB-WR-RB-WR-RB,Jahmyr Gibbs,Drake London,Kyren Williams,Terry McLaurin,Quinshon Judkins,26.699333333333332,0.001997737422238,Data-Driven,False
+6,6,RB-WR-RB-WR-RB Mix,RB-WR-RB-WR-RB,Pattern-based strategy: RB-WR-RB-WR-RB,Jahmyr Gibbs,Drake London,Kyren Williams,Terry McLaurin,Quinshon Judkins,26.69933333333333,0.001997737422238,Data-Driven,False
 6,7,WR-RB-WR-RB-RB Mix,WR-RB-WR-RB-RB,Pattern-based strategy: WR-RB-WR-RB-RB,Ja'Marr Chase,Saquon Barkley,DeVonta Smith,D'Andre Swift,Bhayshul Tuten,29.99333333333333,0.001692871929213,Data-Driven,False
 6,8,RB-RB-WR-RB-WR Mix,RB-RB-WR-RB-WR,Pattern-based strategy: RB-RB-WR-RB-WR,De'Von Achane,Jeremiyah Love,Garrett Wilson,Quinshon Judkins,Michael Pittman Jr.,33.63666666666667,0.0015932665604422,Data-Driven,False
 6,9,WR-RB-RB-WR-RB Mix,WR-RB-RB-WR-RB,Pattern-based strategy: WR-RB-RB-WR-RB,Drake London,James Cook III,Javonte Williams,Ladd McConkey,Jaylen Warren,36.48333333333333,0.001462693969274,Data-Driven,False
@@ -64,7 +64,7 @@ Slot,Rank,Strategy_Name,Pattern,Description,Round1_Pick,Round2_Pick,Round3_Pick,
 7,3,RB-Heavy,Generic,"Load up on RBs early (rounds 1-3), then pivot to WR and depth later.",(Flexible),(Flexible),(Flexible),(Flexible),(Flexible),0.0,0.75,Generic,False
 7,4,WR-Heavy,Generic,"Prioritize elite WRs in rounds 1-3, grab RBs on the rebound in rounds 4-5.",(Flexible),(Flexible),(Flexible),(Flexible),(Flexible),0.0,0.75,Generic,False
 7,5,Zero-RB,Generic,"Skip RB in R1-R2, focus on elite WRs and TE, grab RB value in R3-R4.",(Flexible),(Flexible),(Flexible),(Flexible),(Flexible),0.0,0.7,Generic,False
-7,6,RB-WR-RB-WR-RB Mix,RB-WR-RB-WR-RB,Pattern-based strategy: RB-WR-RB-WR-RB,Jahmyr Gibbs,Drake London,Kyren Williams,Terry McLaurin,Quinshon Judkins,26.699333333333332,0.001997737422238,Data-Driven,False
+7,6,RB-WR-RB-WR-RB Mix,RB-WR-RB-WR-RB,Pattern-based strategy: RB-WR-RB-WR-RB,Jahmyr Gibbs,Drake London,Kyren Williams,Terry McLaurin,Quinshon Judkins,26.69933333333333,0.001997737422238,Data-Driven,False
 7,7,WR-RB-WR-RB-RB Mix,WR-RB-WR-RB-RB,Pattern-based strategy: WR-RB-WR-RB-RB,Ja'Marr Chase,Saquon Barkley,DeVonta Smith,D'Andre Swift,Bhayshul Tuten,29.99333333333333,0.001692871929213,Data-Driven,False
 7,8,RB-RB-WR-RB-WR Mix,RB-RB-WR-RB-WR,Pattern-based strategy: RB-RB-WR-RB-WR,De'Von Achane,Jeremiyah Love,Garrett Wilson,Quinshon Judkins,Michael Pittman Jr.,33.63666666666667,0.0015932665604422,Data-Driven,False
 7,9,WR-RB-RB-WR-RB Mix,WR-RB-RB-WR-RB,Pattern-based strategy: WR-RB-RB-WR-RB,Drake London,James Cook III,Javonte Williams,Ladd McConkey,Jaylen Warren,36.48333333333333,0.001462693969274,Data-Driven,False
@@ -74,7 +74,7 @@ Slot,Rank,Strategy_Name,Pattern,Description,Round1_Pick,Round2_Pick,Round3_Pick,
 8,3,RB-Heavy,Generic,"Load up on RBs early (rounds 1-3), then pivot to WR and depth later.",(Flexible),(Flexible),(Flexible),(Flexible),(Flexible),0.0,0.75,Generic,False
 8,4,WR-Heavy,Generic,"Prioritize elite WRs in rounds 1-3, grab RBs on the rebound in rounds 4-5.",(Flexible),(Flexible),(Flexible),(Flexible),(Flexible),0.0,0.75,Generic,False
 8,5,Zero-RB,Generic,"Skip RB in R1-R2, focus on elite WRs and TE, grab RB value in R3-R4.",(Flexible),(Flexible),(Flexible),(Flexible),(Flexible),0.0,0.7,Generic,False
-8,6,RB-WR-RB-WR-RB Mix,RB-WR-RB-WR-RB,Pattern-based strategy: RB-WR-RB-WR-RB,Jahmyr Gibbs,Drake London,Kyren Williams,Terry McLaurin,Quinshon Judkins,26.699333333333332,0.001997737422238,Data-Driven,False
+8,6,RB-WR-RB-WR-RB Mix,RB-WR-RB-WR-RB,Pattern-based strategy: RB-WR-RB-WR-RB,Jahmyr Gibbs,Drake London,Kyren Williams,Terry McLaurin,Quinshon Judkins,26.69933333333333,0.001997737422238,Data-Driven,False
 8,7,WR-RB-WR-RB-RB Mix,WR-RB-WR-RB-RB,Pattern-based strategy: WR-RB-WR-RB-RB,Ja'Marr Chase,Saquon Barkley,DeVonta Smith,D'Andre Swift,Bhayshul Tuten,29.99333333333333,0.001692871929213,Data-Driven,False
 8,8,RB-RB-WR-RB-WR Mix,RB-RB-WR-RB-WR,Pattern-based strategy: RB-RB-WR-RB-WR,De'Von Achane,Jeremiyah Love,Garrett Wilson,Quinshon Judkins,Michael Pittman Jr.,33.63666666666667,0.0015932665604422,Data-Driven,False
 8,9,WR-RB-RB-WR-RB Mix,WR-RB-RB-WR-RB,Pattern-based strategy: WR-RB-RB-WR-RB,Drake London,James Cook III,Javonte Williams,Ladd McConkey,Jaylen Warren,36.48333333333333,0.001462693969274,Data-Driven,False
@@ -84,7 +84,7 @@ Slot,Rank,Strategy_Name,Pattern,Description,Round1_Pick,Round2_Pick,Round3_Pick,
 9,3,RB-Heavy,Generic,"Load up on RBs early (rounds 1-3), then pivot to WR and depth later.",(Flexible),(Flexible),(Flexible),(Flexible),(Flexible),0.0,0.75,Generic,False
 9,4,WR-Heavy,Generic,"Prioritize elite WRs in rounds 1-3, grab RBs on the rebound in rounds 4-5.",(Flexible),(Flexible),(Flexible),(Flexible),(Flexible),0.0,0.75,Generic,False
 9,5,Zero-RB,Generic,"Skip RB in R1-R2, focus on elite WRs and TE, grab RB value in R3-R4.",(Flexible),(Flexible),(Flexible),(Flexible),(Flexible),0.0,0.7,Generic,False
-9,6,RB-WR-RB-WR-RB Mix,RB-WR-RB-WR-RB,Pattern-based strategy: RB-WR-RB-WR-RB,Jahmyr Gibbs,Drake London,Kyren Williams,Terry McLaurin,Quinshon Judkins,26.699333333333332,0.001997737422238,Data-Driven,False
+9,6,RB-WR-RB-WR-RB Mix,RB-WR-RB-WR-RB,Pattern-based strategy: RB-WR-RB-WR-RB,Jahmyr Gibbs,Drake London,Kyren Williams,Terry McLaurin,Quinshon Judkins,26.69933333333333,0.001997737422238,Data-Driven,False
 9,7,WR-RB-WR-RB-RB Mix,WR-RB-WR-RB-RB,Pattern-based strategy: WR-RB-WR-RB-RB,Ja'Marr Chase,Saquon Barkley,DeVonta Smith,D'Andre Swift,Bhayshul Tuten,29.99333333333333,0.001692871929213,Data-Driven,False
 9,8,RB-RB-WR-RB-WR Mix,RB-RB-WR-RB-WR,Pattern-based strategy: RB-RB-WR-RB-WR,De'Von Achane,Jeremiyah Love,Garrett Wilson,Quinshon Judkins,Michael Pittman Jr.,33.63666666666667,0.0015932665604422,Data-Driven,False
 9,9,WR-RB-RB-WR-RB Mix,WR-RB-RB-WR-RB,Pattern-based strategy: WR-RB-RB-WR-RB,Drake London,James Cook III,Javonte Williams,Ladd McConkey,Jaylen Warren,36.48333333333333,0.001462693969274,Data-Driven,False
@@ -94,7 +94,7 @@ Slot,Rank,Strategy_Name,Pattern,Description,Round1_Pick,Round2_Pick,Round3_Pick,
 10,3,RB-Heavy,Generic,"Load up on RBs early (rounds 1-3), then pivot to WR and depth later.",(Flexible),(Flexible),(Flexible),(Flexible),(Flexible),0.0,0.75,Generic,False
 10,4,WR-Heavy,Generic,"Prioritize elite WRs in rounds 1-3, grab RBs on the rebound in rounds 4-5.",(Flexible),(Flexible),(Flexible),(Flexible),(Flexible),0.0,0.75,Generic,False
 10,5,Zero-RB,Generic,"Skip RB in R1-R2, focus on elite WRs and TE, grab RB value in R3-R4.",(Flexible),(Flexible),(Flexible),(Flexible),(Flexible),0.0,0.7,Generic,False
-10,6,RB-WR-RB-WR-RB Mix,RB-WR-RB-WR-RB,Pattern-based strategy: RB-WR-RB-WR-RB,Jahmyr Gibbs,Drake London,Kyren Williams,Terry McLaurin,Quinshon Judkins,26.699333333333332,0.001997737422238,Data-Driven,False
+10,6,RB-WR-RB-WR-RB Mix,RB-WR-RB-WR-RB,Pattern-based strategy: RB-WR-RB-WR-RB,Jahmyr Gibbs,Drake London,Kyren Williams,Terry McLaurin,Quinshon Judkins,26.69933333333333,0.001997737422238,Data-Driven,False
 10,7,WR-RB-WR-RB-RB Mix,WR-RB-WR-RB-RB,Pattern-based strategy: WR-RB-WR-RB-RB,Ja'Marr Chase,Saquon Barkley,DeVonta Smith,D'Andre Swift,Bhayshul Tuten,29.99333333333333,0.001692871929213,Data-Driven,False
 10,8,RB-RB-WR-RB-WR Mix,RB-RB-WR-RB-WR,Pattern-based strategy: RB-RB-WR-RB-WR,De'Von Achane,Jeremiyah Love,Garrett Wilson,Quinshon Judkins,Michael Pittman Jr.,33.63666666666667,0.0015932665604422,Data-Driven,False
 10,9,WR-RB-RB-WR-RB Mix,WR-RB-RB-WR-RB,Pattern-based strategy: WR-RB-RB-WR-RB,Drake London,James Cook III,Javonte Williams,Ladd McConkey,Jaylen Warren,36.48333333333333,0.001462693969274,Data-Driven,False
@@ -104,7 +104,7 @@ Slot,Rank,Strategy_Name,Pattern,Description,Round1_Pick,Round2_Pick,Round3_Pick,
 11,3,RB-Heavy,Generic,"Load up on RBs early (rounds 1-3), then pivot to WR and depth later.",(Flexible),(Flexible),(Flexible),(Flexible),(Flexible),0.0,0.75,Generic,False
 11,4,WR-Heavy,Generic,"Prioritize elite WRs in rounds 1-3, grab RBs on the rebound in rounds 4-5.",(Flexible),(Flexible),(Flexible),(Flexible),(Flexible),0.0,0.75,Generic,False
 11,5,Zero-RB,Generic,"Skip RB in R1-R2, focus on elite WRs and TE, grab RB value in R3-R4.",(Flexible),(Flexible),(Flexible),(Flexible),(Flexible),0.0,0.7,Generic,False
-11,6,RB-WR-RB-WR-RB Mix,RB-WR-RB-WR-RB,Pattern-based strategy: RB-WR-RB-WR-RB,Jahmyr Gibbs,Drake London,Kyren Williams,Terry McLaurin,Quinshon Judkins,26.699333333333332,0.001997737422238,Data-Driven,False
+11,6,RB-WR-RB-WR-RB Mix,RB-WR-RB-WR-RB,Pattern-based strategy: RB-WR-RB-WR-RB,Jahmyr Gibbs,Drake London,Kyren Williams,Terry McLaurin,Quinshon Judkins,26.69933333333333,0.001997737422238,Data-Driven,False
 11,7,WR-RB-WR-RB-RB Mix,WR-RB-WR-RB-RB,Pattern-based strategy: WR-RB-WR-RB-RB,Ja'Marr Chase,Saquon Barkley,DeVonta Smith,D'Andre Swift,Bhayshul Tuten,29.99333333333333,0.001692871929213,Data-Driven,False
 11,8,RB-RB-WR-RB-WR Mix,RB-RB-WR-RB-WR,Pattern-based strategy: RB-RB-WR-RB-WR,De'Von Achane,Jeremiyah Love,Garrett Wilson,Quinshon Judkins,Michael Pittman Jr.,33.63666666666667,0.0015932665604422,Data-Driven,False
 11,9,WR-RB-RB-WR-RB Mix,WR-RB-RB-WR-RB,Pattern-based strategy: WR-RB-RB-WR-RB,Drake London,James Cook III,Javonte Williams,Ladd McConkey,Jaylen Warren,36.48333333333333,0.001462693969274,Data-Driven,False
@@ -114,8 +114,20 @@ Slot,Rank,Strategy_Name,Pattern,Description,Round1_Pick,Round2_Pick,Round3_Pick,
 12,3,RB-Heavy,Generic,"Load up on RBs early (rounds 1-3), then pivot to WR and depth later.",(Flexible),(Flexible),(Flexible),(Flexible),(Flexible),0.0,0.75,Generic,False
 12,4,WR-Heavy,Generic,"Prioritize elite WRs in rounds 1-3, grab RBs on the rebound in rounds 4-5.",(Flexible),(Flexible),(Flexible),(Flexible),(Flexible),0.0,0.75,Generic,False
 12,5,Zero-RB,Generic,"Skip RB in R1-R2, focus on elite WRs and TE, grab RB value in R3-R4.",(Flexible),(Flexible),(Flexible),(Flexible),(Flexible),0.0,0.7,Generic,False
-12,6,RB-WR-RB-WR-RB Mix,RB-WR-RB-WR-RB,Pattern-based strategy: RB-WR-RB-WR-RB,Jahmyr Gibbs,Drake London,Kyren Williams,Terry McLaurin,Quinshon Judkins,26.699333333333332,0.001997737422238,Data-Driven,False
+12,6,RB-WR-RB-WR-RB Mix,RB-WR-RB-WR-RB,Pattern-based strategy: RB-WR-RB-WR-RB,Jahmyr Gibbs,Drake London,Kyren Williams,Terry McLaurin,Quinshon Judkins,26.69933333333333,0.001997737422238,Data-Driven,False
 12,7,WR-RB-WR-RB-RB Mix,WR-RB-WR-RB-RB,Pattern-based strategy: WR-RB-WR-RB-RB,Ja'Marr Chase,Saquon Barkley,DeVonta Smith,D'Andre Swift,Bhayshul Tuten,29.99333333333333,0.001692871929213,Data-Driven,False
 12,8,RB-RB-WR-RB-WR Mix,RB-RB-WR-RB-WR,Pattern-based strategy: RB-RB-WR-RB-WR,De'Von Achane,Jeremiyah Love,Garrett Wilson,Quinshon Judkins,Michael Pittman Jr.,33.63666666666667,0.0015932665604422,Data-Driven,False
 12,9,WR-RB-RB-WR-RB Mix,WR-RB-RB-WR-RB,Pattern-based strategy: WR-RB-RB-WR-RB,Drake London,James Cook III,Javonte Williams,Ladd McConkey,Jaylen Warren,36.48333333333333,0.001462693969274,Data-Driven,False
 12,10,RB-WR-WR-RB-RB Mix,RB-WR-WR-RB-RB,Pattern-based strategy: RB-WR-WR-RB-RB,Chase Brown,Nico Collins,Davante Adams,Bhayshul Tuten,Rico Dowdle,41.260666666666665,0.0012480290854677,Data-Driven,False
+1,11,Jets Focus,Jets-Only,"Prioritize NY Jets players (Breece Hall RB, Garrett Wilson WR) in optimal positions while maintaining roster needs.",(Flexible),Breece Hall,Garrett Wilson,(Flexible),(Flexible),30.0,0.72,Jets-Focused,False
+2,11,Jets Focus,Jets-Only,"Prioritize NY Jets players (Breece Hall RB, Garrett Wilson WR) in optimal positions while maintaining roster needs.",(Flexible),Breece Hall,Garrett Wilson,(Flexible),(Flexible),30.0,0.72,Jets-Focused,False
+3,11,Jets Focus,Jets-Only,"Prioritize NY Jets players (Breece Hall RB, Garrett Wilson WR) in optimal positions while maintaining roster needs.",(Flexible),Breece Hall,Garrett Wilson,(Flexible),(Flexible),30.0,0.72,Jets-Focused,False
+4,11,Jets Focus,Jets-Only,"Prioritize NY Jets players (Breece Hall RB, Garrett Wilson WR) in optimal positions while maintaining roster needs.",(Flexible),Breece Hall,Garrett Wilson,(Flexible),(Flexible),30.0,0.72,Jets-Focused,False
+5,11,Jets Focus,Jets-Only,"Prioritize NY Jets players (Breece Hall RB, Garrett Wilson WR) in optimal positions while maintaining roster needs.",(Flexible),Breece Hall,Garrett Wilson,(Flexible),(Flexible),30.0,0.72,Jets-Focused,False
+6,11,Jets Focus,Jets-Only,"Prioritize NY Jets players (Breece Hall RB, Garrett Wilson WR) in optimal positions while maintaining roster needs.",(Flexible),Breece Hall,Garrett Wilson,(Flexible),(Flexible),30.0,0.72,Jets-Focused,False
+7,11,Jets Focus,Jets-Only,"Prioritize NY Jets players (Breece Hall RB, Garrett Wilson WR) in optimal positions while maintaining roster needs.",(Flexible),Breece Hall,Garrett Wilson,(Flexible),(Flexible),30.0,0.72,Jets-Focused,False
+8,11,Jets Focus,Jets-Only,"Prioritize NY Jets players (Breece Hall RB, Garrett Wilson WR) in optimal positions while maintaining roster needs.",(Flexible),Breece Hall,Garrett Wilson,(Flexible),(Flexible),30.0,0.72,Jets-Focused,False
+9,11,Jets Focus,Jets-Only,"Prioritize NY Jets players (Breece Hall RB, Garrett Wilson WR) in optimal positions while maintaining roster needs.",(Flexible),(Flexible),Garrett Wilson,(Flexible),(Flexible),30.0,0.72,Jets-Focused,False
+10,11,Jets Focus,Jets-Only,"Prioritize NY Jets players (Breece Hall RB, Garrett Wilson WR) in optimal positions while maintaining roster needs.",(Flexible),(Flexible),Garrett Wilson,(Flexible),(Flexible),30.0,0.72,Jets-Focused,False
+11,11,Jets Focus,Jets-Only,"Prioritize NY Jets players (Breece Hall RB, Garrett Wilson WR) in optimal positions while maintaining roster needs.",(Flexible),(Flexible),(Flexible),(Flexible),(Flexible),30.0,0.72,Jets-Focused,False
+12,11,Jets Focus,Jets-Only,"Prioritize NY Jets players (Breece Hall RB, Garrett Wilson WR) in optimal positions while maintaining roster needs.",(Flexible),(Flexible),(Flexible),(Flexible),(Flexible),30.0,0.72,Jets-Focused,False
