@@ -1286,9 +1286,6 @@ def _render_landing_page():
 
 def _render_draft_research_page():
     st.title("Draft research")
-    if st.button("Back to home", key="research_back_home"):
-        st.session_state.app_page = "Landing"
-        st.rerun()
 
     st.subheader("Top sleepers")
     st.dataframe(df_sleepers.head(25), hide_index=True)
@@ -1395,9 +1392,6 @@ def _build_fallback_draft_rows(selected_team, season):
 
 def _render_league_history_page():
     st.title("League history")
-    if st.button("Back to home", key="league_back_home"):
-        st.session_state.app_page = "Landing"
-        st.rerun()
 
     cy = datetime.now().year
     season_options = list(range(cy, 2017, -1))
@@ -2278,7 +2272,7 @@ def _render_global_navigation():
 with st.sidebar:
     st.header("Settings")
 
-    if st.button("Connect ESPN", type="primary", use_container_width=True):
+    if st.button("Connect ESPN", type="primary", width="stretch"):
         if not st.session_state.espn_s2:
             st.session_state.espn_s2 = _get_local_secret("ESPN_S2")
         if not st.session_state.espn_swid:
@@ -2309,6 +2303,47 @@ with st.sidebar:
             st.session_state.espn_selected_owner_name = None
         sync_espn_connection()
         st.success("Settings saved and connection tested.")
+
+    st.divider()
+    st.subheader("League sync")
+    st.caption(f"League **{st.session_state.espn_league_id or 'not set'}**")
+    if st.button("Sync league teams", key="sidebar_sync_league_button", type="secondary", width="stretch"):
+        sync_espn_connection()
+    if not st.session_state.espn_s2:
+        st.warning("No espn_s2 set. Add credentials above to enable team sync.")
+
+    espn_teams = st.session_state.espn_teams_cache if st.session_state.espn_teams_cache else DEFAULT_LEAGUE_TEAMS.copy()
+    if espn_teams:
+        label_to_team = {}
+        team_labels = []
+        for t in espn_teams:
+            slot_txt = f"Slot {t['draft_slot']}" if t.get("draft_slot") else "Slot unknown"
+            owner_txt = f" • {t['owner']}" if t.get("owner") else ""
+            label = f"{t['name']} ({t.get('abbrev','')}) • {slot_txt}{owner_txt}"
+            team_labels.append(label)
+            label_to_team[label] = t
+
+        default_label_index = 0
+        if st.session_state.espn_selected_team_id is not None:
+            for i, lbl in enumerate(team_labels):
+                if label_to_team[lbl]["team_id"] == st.session_state.espn_selected_team_id:
+                    default_label_index = i
+                    break
+
+        selected_team_label = st.selectbox("Select your ESPN team", team_labels, index=default_label_index)
+        selected_team = label_to_team[selected_team_label]
+        st.session_state.espn_selected_team_id = selected_team["team_id"]
+        st.session_state.espn_selected_team_name = selected_team["name"]
+        st.session_state.espn_selected_owner_id = selected_team.get("owner_id")
+        st.session_state.espn_selected_owner_name = selected_team.get("owner", "")
+
+        selected_team_slot = selected_team.get("draft_slot")
+        if selected_team_slot:
+            st.caption(f"Detected draft slot: **#{selected_team_slot}**")
+        else:
+            st.caption("Draft slot unknown from ESPN; pick one manually in simulator.")
+    else:
+        st.caption("No teams loaded yet.")
 
 _render_global_navigation()
 
@@ -2350,72 +2385,11 @@ if st.session_state.app_page == "Draft recap":
 
 
 # ============== DRAFT SETUP PAGE ==============
-if st.button("Back to home", key="sim_back_home"):
-    st.session_state.app_page = "Landing"
-    st.rerun()
-
 if not st.session_state.draft_started:
     st.title("🏈 2026 Fantasy Football Draft Simulator")
     st.subheader("Select ESPN Team & Draft Slot")
-
-    with st.expander("ESPN League Sync", expanded=True):
-        st.caption(f"League **{st.session_state.espn_league_id or 'not set'}**. Click sync to refresh teams and slots.")
-        if st.button("Sync League Teams", key="sync_league_button", type="secondary"):
-            sync_espn_connection()
-        if not st.session_state.espn_s2:
-            st.warning("No espn_s2 set. Add credentials in Settings to enable team sync.")
-
-        espn_teams = st.session_state.espn_teams_cache if st.session_state.espn_teams_cache else DEFAULT_LEAGUE_TEAMS.copy()
-
-        if st.session_state.espn_connect_status:
-            if st.session_state.espn_connected:
-                st.success(st.session_state.espn_connect_status)
-            else:
-                st.warning(st.session_state.espn_connect_status)
-
-        selected_team_slot = None
-        if espn_teams:
-            label_to_team = {}
-            team_labels = []
-            for t in espn_teams:
-                slot_txt = f"Slot {t['draft_slot']}" if t.get("draft_slot") else "Slot unknown"
-                owner_txt = f" • {t['owner']}" if t.get("owner") else ""
-                label = f"{t['name']} ({t.get('abbrev','')}) • {slot_txt}{owner_txt}"
-                team_labels.append(label)
-                label_to_team[label] = t
-
-            default_label_index = 0
-            if st.session_state.espn_selected_team_id is not None:
-                for i, lbl in enumerate(team_labels):
-                    if label_to_team[lbl]["team_id"] == st.session_state.espn_selected_team_id:
-                        default_label_index = i
-                        break
-
-            selected_team_label = st.selectbox("Select your ESPN team", team_labels, index=default_label_index)
-            selected_team = label_to_team[selected_team_label]
-            st.session_state.espn_selected_team_id = selected_team["team_id"]
-            st.session_state.espn_selected_team_name = selected_team["name"]
-            st.session_state.espn_selected_owner_id = selected_team.get("owner_id")
-            st.session_state.espn_selected_owner_name = selected_team.get("owner", "")
-            selected_team_slot = selected_team.get("draft_slot")
-
-            p1, p2 = st.columns([1, 3])
-            with p1:
-                team_logo_src = selected_team.get("logo_resolved") or selected_team.get("logo")
-                if team_logo_src:
-                    fallback_logo = f"https://g.espncdn.com/lm-static/ffl/images/default_logos/{(int(selected_team.get('team_id', 1)) % 20) or 1}.svg"
-                    st.markdown(
-                        f'<img src="{team_logo_src}" width="72" '
-                        f'onerror="this.onerror=null;this.src=\'{fallback_logo}\';" '
-                        f'style="border-radius:8px;border:1px solid #e2e8f0;background:#fff;">',
-                        unsafe_allow_html=True
-                    )
-            with p2:
-                st.caption(f"Selected team: {selected_team['name']} ({selected_team.get('abbrev','')})")
-                if selected_team_slot:
-                    st.success(f"Detected draft slot: #{selected_team_slot}")
-                else:
-                    st.info("Draft slot not found from ESPN draft data; select manually below.")
+    selected_team = get_selected_espn_team()
+    selected_team_slot = selected_team.get("draft_slot") if selected_team else None
 
     slot_default = int(selected_team_slot) if selected_team_slot else int(st.session_state.draft_slot or 6)
     slot_default = max(1, min(12, slot_default))
@@ -2436,17 +2410,9 @@ if not st.session_state.draft_started:
     
     st.divider()
     
-    st.header("Draft Position Analysis")
     slot_strategies = df_full_strategies[df_full_strategies['Slot'] == slot].copy()
     slot_strategies = slot_strategies.sort_values(['Rank', 'Value_Score'], ascending=[True, False])
-    
-    st.write(f"""
-    **Your Draft Position Analysis:**
-    - **Round 1:** Your pick is #{slot}
-    - **Round 2:** Your pick is #{13-slot} (snake back)
-    - **Rounds 3-5:** Alternating picks based on league size
-    """)
-    
+
     # Strategy Selection with Dropdown
     st.header("Select Your Draft Strategy")
     st.caption("Choose from all strategies for your slot")
