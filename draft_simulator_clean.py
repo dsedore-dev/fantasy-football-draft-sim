@@ -1195,18 +1195,6 @@ def _render_landing_page():
         unsafe_allow_html=True,
     )
 
-    mode = "Live ESPN connection" if st.session_state.espn_connected else "Default league fallback"
-    teams_count = len(get_preferred_teams())
-    picks_count = len(st.session_state.drafted_players)
-    m1, m2, m3 = st.columns(3)
-    with m1:
-        st.metric("League", st.session_state.espn_league_id or DEFAULT_LEAGUE_ID)
-    with m2:
-        st.metric("Teams loaded", teams_count)
-    with m3:
-        st.metric("Draft picks made", picks_count)
-    st.caption(mode)
-
     st.markdown("**League teams**")
     teams = get_preferred_teams()
     logo_cols = st.columns(6, gap="small")
@@ -2312,6 +2300,13 @@ with st.sidebar:
     if not st.session_state.espn_s2:
         st.warning("No espn_s2 set. Add credentials above to enable team sync.")
     st.caption("Team selection is on the draft setup page.")
+    mode = "Live ESPN connection" if st.session_state.espn_connected else "Default league fallback"
+    teams_count = len(get_preferred_teams())
+    picks_count = len(st.session_state.drafted_players)
+    st.metric("League", st.session_state.espn_league_id or DEFAULT_LEAGUE_ID)
+    st.metric("Teams loaded", teams_count)
+    st.metric("Draft picks made", picks_count)
+    st.caption(mode)
 
 _render_global_navigation()
 
