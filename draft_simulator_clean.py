@@ -357,6 +357,15 @@ def get_team_manager_display(team):
     return resolve_manager_label(team.get("owner"), team_name, team.get("team_id"))
 
 
+def is_generic_manager_label(name, team_name=""):
+    manager = normalize_manager_name(name)
+    generic_values = {"Unknown manager", "Manager unavailable"}
+    team_name = str(team_name or "").strip()
+    if team_name:
+        generic_values.add(f"{team_name} manager")
+    return manager in generic_values
+
+
 def _merge_manager_name(raw_name, owner_id, canonical_by_owner_id, team_name="", team_id=None):
     raw = resolve_manager_label(raw_name, team_name, team_id)
     owner_key = normalize_owner_id(owner_id)
@@ -2106,13 +2115,32 @@ def _render_team_history_page(preselected_team=None):
         year_picks = picks_by_season.get(season, pd.DataFrame()).copy()
         if year_picks.empty:
             year_picks = pd.DataFrame(_build_fallback_draft_rows(selected_team, season))
+        season_row = season_row_lookup.get(season, {})
+        season_team_name = season_row.get("team_name", selected_team.get("name", ""))
+        manager_name = normalize_manager_name(season_row.get("owner_name", ""))
+
+        if is_generic_manager_label(manager_name, season_team_name) and "owner_name" in year_picks.columns:
+            owner_candidates = [
+                normalize_manager_name(v)
+                for v in year_picks["owner_name"].dropna().astype(str).tolist()
+                if not is_generic_manager_label(v, season_team_name)
+            ]
+            if owner_candidates:
+                manager_name = owner_candidates[0]
+
+        if is_generic_manager_label(manager_name, season_team_name) and not is_generic_manager_label(selected_owner_name, season_team_name):
+            manager_name = normalize_manager_name(selected_owner_name)
+
+        if is_generic_manager_label(manager_name, season_team_name):
+            manager_name = get_team_manager_display(selected_team)
+
         overall = pd.to_numeric(year_picks.get("overall_pick"), errors="coerce")
         known_players = year_picks["player_name"].astype(str) != "(No live draft pick data)"
         first_three = ", ".join(year_picks.head(3)["player_name"].astype(str).tolist())
         facts_rows.append(
             {
                 "Season": season,
-                "Manager": get_team_manager_display(selected_team),
+                "Manager": manager_name,
                 "Total Picks": int(len(year_picks)),
                 "Named Picks": int(known_players.sum()),
                 "First Overall Pick": int(overall.min()) if overall.notna().any() else "—",
