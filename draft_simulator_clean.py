@@ -2311,39 +2311,7 @@ with st.sidebar:
         sync_espn_connection()
     if not st.session_state.espn_s2:
         st.warning("No espn_s2 set. Add credentials above to enable team sync.")
-
-    espn_teams = st.session_state.espn_teams_cache if st.session_state.espn_teams_cache else DEFAULT_LEAGUE_TEAMS.copy()
-    if espn_teams:
-        label_to_team = {}
-        team_labels = []
-        for t in espn_teams:
-            slot_txt = f"Slot {t['draft_slot']}" if t.get("draft_slot") else "Slot unknown"
-            owner_txt = f" • {t['owner']}" if t.get("owner") else ""
-            label = f"{t['name']} ({t.get('abbrev','')}) • {slot_txt}{owner_txt}"
-            team_labels.append(label)
-            label_to_team[label] = t
-
-        default_label_index = 0
-        if st.session_state.espn_selected_team_id is not None:
-            for i, lbl in enumerate(team_labels):
-                if label_to_team[lbl]["team_id"] == st.session_state.espn_selected_team_id:
-                    default_label_index = i
-                    break
-
-        selected_team_label = st.selectbox("Select your ESPN team", team_labels, index=default_label_index)
-        selected_team = label_to_team[selected_team_label]
-        st.session_state.espn_selected_team_id = selected_team["team_id"]
-        st.session_state.espn_selected_team_name = selected_team["name"]
-        st.session_state.espn_selected_owner_id = selected_team.get("owner_id")
-        st.session_state.espn_selected_owner_name = selected_team.get("owner", "")
-
-        selected_team_slot = selected_team.get("draft_slot")
-        if selected_team_slot:
-            st.caption(f"Detected draft slot: **#{selected_team_slot}**")
-        else:
-            st.caption("Draft slot unknown from ESPN; pick one manually in simulator.")
-    else:
-        st.caption("No teams loaded yet.")
+    st.caption("Team selection is on the draft setup page.")
 
 _render_global_navigation()
 
@@ -2388,8 +2356,55 @@ if st.session_state.app_page == "Draft recap":
 if not st.session_state.draft_started:
     st.title("🏈 2026 Fantasy Football Draft Simulator")
     st.subheader("Select ESPN Team & Draft Slot")
-    selected_team = get_selected_espn_team()
-    selected_team_slot = selected_team.get("draft_slot") if selected_team else None
+    espn_teams = get_preferred_teams()
+    selected_team = None
+    selected_team_slot = None
+
+    if espn_teams:
+        label_to_team = {}
+        team_labels = []
+        for t in espn_teams:
+            slot_txt = f"Slot {t['draft_slot']}" if t.get("draft_slot") else "Slot unknown"
+            owner_txt = f" • {t['owner']}" if t.get("owner") else ""
+            label = f"{t['name']} ({t.get('abbrev','')}) • {slot_txt}{owner_txt}"
+            team_labels.append(label)
+            label_to_team[label] = t
+
+        default_label_index = 0
+        if st.session_state.espn_selected_team_id is not None:
+            for i, lbl in enumerate(team_labels):
+                if label_to_team[lbl]["team_id"] == st.session_state.espn_selected_team_id:
+                    default_label_index = i
+                    break
+
+        selected_team_label = st.selectbox("Select your ESPN team", team_labels, index=default_label_index)
+        selected_team = label_to_team[selected_team_label]
+        st.session_state.espn_selected_team_id = selected_team["team_id"]
+        st.session_state.espn_selected_team_name = selected_team["name"]
+        st.session_state.espn_selected_owner_id = selected_team.get("owner_id")
+        st.session_state.espn_selected_owner_name = selected_team.get("owner", "")
+        selected_team_slot = selected_team.get("draft_slot")
+    else:
+        selected_team = get_selected_espn_team()
+        selected_team_slot = selected_team.get("draft_slot") if selected_team else None
+
+    if selected_team:
+        with st.container(border=True):
+            tc1, tc2 = st.columns([1, 5])
+            with tc1:
+                team_logo_src = str(selected_team.get("logo_resolved") or selected_team.get("logo") or "").strip()
+                if team_logo_src:
+                    st.image(team_logo_src, width=68)
+            with tc2:
+                st.markdown(f"### {selected_team.get('name', 'Selected team')}")
+                details = [f"**{selected_team.get('abbrev', '—')}**"]
+                if selected_team.get("owner"):
+                    details.append(f"Manager: **{selected_team.get('owner')}**")
+                st.markdown(" • ".join(details))
+                if selected_team_slot:
+                    st.success(f"Detected draft slot: #{selected_team_slot}")
+                else:
+                    st.info("Draft slot unknown from ESPN; select it manually below.")
 
     slot_default = int(selected_team_slot) if selected_team_slot else int(st.session_state.draft_slot or 6)
     slot_default = max(1, min(12, slot_default))
