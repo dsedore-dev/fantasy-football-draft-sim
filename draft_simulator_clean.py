@@ -2051,6 +2051,17 @@ def _simulate_full_league_draft(teams, tendencies, rounds=16):
 
             round_pref = t_tendency.get("round_pos_pref", {}).get(rnd)
             pos_weights = t_tendency.get("pos_weights", {})
+            weighted_pos_order = [
+                p for p, _ in sorted(pos_weights.items(), key=lambda kv: kv[1], reverse=True)
+                if p in {"QB", "RB", "WR", "TE", "DEF", "K"}
+            ]
+            needed_order = ["RB", "WR", "TE", "QB", "DEF", "K"]
+            strategy_pos_order = []
+            if round_pref in {"QB", "RB", "WR", "TE", "DEF", "K"}:
+                strategy_pos_order.append(round_pref)
+            strategy_pos_order.extend([p for p in weighted_pos_order if p not in strategy_pos_order])
+            strategy_pos_order.extend([p for p in needed_order if p in needed_positions and p not in strategy_pos_order])
+            strategy_pos_order.extend([p for p in needed_order if p not in strategy_pos_order])
 
             def _score(row):
                 pos = str(row.get("Position", "")).upper()
@@ -2078,7 +2089,23 @@ def _simulate_full_league_draft(teams, tendencies, rounds=16):
                 return adp_score + need_score + pref_score + tendency_score + tier_score + elite_slip_bonus + scarcity_penalty - (avg_adp * 0.0025)
 
             window["sim_score"] = window.apply(_score, axis=1)
-            choice = window.sort_values(["sim_score", "ADP_Resolved"], ascending=[False, True]).iloc[0]
+            strategy_pool = pd.DataFrame()
+            for pos in strategy_pos_order:
+                pos_pool = window[window["Position"].astype(str).str.upper() == pos].copy()
+                if pos_pool.empty:
+                    continue
+                # Respect team tendency first, but only reach reasonably beyond market.
+                max_reach = overall_pick + (12 if pos == round_pref else 8)
+                pos_pool = pos_pool[pos_pool["ADP_Resolved"] <= max_reach].copy()
+                if pos_pool.empty:
+                    continue
+                strategy_pool = pos_pool
+                break
+
+            if strategy_pool.empty:
+                strategy_pool = window
+
+            choice = strategy_pool.sort_values(["sim_score", "ADP_Resolved"], ascending=[False, True]).iloc[0]
 
             pick_row = {
                 "Round": int(rnd),
