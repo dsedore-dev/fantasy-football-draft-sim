@@ -2042,6 +2042,9 @@ def _simulate_full_league_draft(teams, tendencies, rounds=16):
                 break
 
             window = pool[(pool["ADP_Resolved"] >= overall_pick - 2) & (pool["ADP_Resolved"] <= overall_pick + 24)].copy()
+            slipped = pool[pool["ADP_Resolved"] < overall_pick].sort_values("ADP_Resolved").head(12).copy()
+            if not slipped.empty:
+                window = pd.concat([window, slipped], ignore_index=True).drop_duplicates(subset=["Player"], keep="first")
             if len(window) < 10:
                 window = pool.head(40).copy()
 
@@ -2053,11 +2056,17 @@ def _simulate_full_league_draft(teams, tendencies, rounds=16):
                 adp = float(row.get("ADP_Resolved", 999))
                 avg_adp = float(row.get("Avg_ADP_Resolved", adp)) if pd.notna(row.get("Avg_ADP_Resolved")) else adp
                 tier = pd.to_numeric(row.get("Tier"), errors="coerce")
+                slip = max(float(overall_pick) - adp, 0.0)
                 adp_score = -abs(adp - overall_pick) * 1.35
                 need_score = 18.0 if pos in needed_positions else -4.5
                 pref_score = 12.0 if (round_pref and pos == round_pref) else (-2.5 if round_pref else 0.0)
                 tendency_score = float(pos_weights.get(pos, 0.0)) * 10.0
                 tier_score = (15.0 - float(tier)) * 0.8 if pd.notna(tier) else 0.0
+                elite_slip_bonus = 0.0
+                if adp <= 12 and slip >= 2:
+                    elite_slip_bonus += 22.0
+                elif adp <= 24 and slip >= 6:
+                    elite_slip_bonus += 10.0
                 scarcity_penalty = 0.0
                 if pos in {"DEF", "K"} and rnd <= 9:
                     scarcity_penalty -= 18.0
@@ -2065,7 +2074,7 @@ def _simulate_full_league_draft(teams, tendencies, rounds=16):
                     scarcity_penalty -= 14.0
                 if pos == "TE" and pos_counts["TE"] >= 2:
                     scarcity_penalty -= 10.0
-                return adp_score + need_score + pref_score + tendency_score + tier_score + scarcity_penalty - (avg_adp * 0.0025)
+                return adp_score + need_score + pref_score + tendency_score + tier_score + elite_slip_bonus + scarcity_penalty - (avg_adp * 0.0025)
 
             window["sim_score"] = window.apply(_score, axis=1)
             choice = window.sort_values(["sim_score", "ADP_Resolved"], ascending=[False, True]).iloc[0]
