@@ -2045,6 +2045,7 @@ def _simulate_full_league_draft(teams, tendencies, rounds=16):
             slipped = pool[pool["ADP_Resolved"] < overall_pick].sort_values("ADP_Resolved").head(12).copy()
             if not slipped.empty:
                 window = pd.concat([window, slipped], ignore_index=True).drop_duplicates(subset=["Player"], keep="first")
+
             if len(window) < 10:
                 window = pool.head(40).copy()
 
