@@ -2174,45 +2174,91 @@ def _compute_team_ratings(team_picks):
                 "Projected Rating": round(float(rating), 1),
             }
         )
-    return pd.DataFrame(ratings), pd.DataFrame(roster_rows)
+    ratings_df = pd.DataFrame(ratings)
+    if not ratings_df.empty:
+        mean_rating = float(ratings_df["Projected Rating"].mean())
+        std_rating = float(ratings_df["Projected Rating"].std(ddof=0))
+        std_rating = std_rating if std_rating > 1e-6 else 1.0
+        ratings_df["Strength Index"] = (ratings_df["Projected Rating"] - mean_rating) / std_rating
+        ratings_df["Strength Index"] = ratings_df["Strength Index"].clip(-2.0, 2.0)
+    return ratings_df, pd.DataFrame(roster_rows)
 
 
-def _predict_matchup_score(home_rating, away_rating, week, home_team_id, away_team_id):
-    home_adj = ((int(week) * 17 + int(home_team_id) * 13 + int(away_team_id) * 7) % 15) - 7
-    away_adj = ((int(week) * 11 + int(away_team_id) * 19 + int(home_team_id) * 5) % 15) - 7
-    home_score = float(home_rating) + float(home_adj) + 3.0
-    away_score = float(away_rating) + float(away_adj)
-    if abs(home_score - away_score) < 0.001:
-        home_score += 0.5
+def _compute_historical_scoring_context(season_df):
+    default_ctx = {"avg_ppg": 125.0, "ppg_std": 12.0, "games_per_team": 14}
+    if season_df is None or season_df.empty:
+        return default_ctx
+
+    hist = season_df.copy()
+    hist["pf"] = pd.to_numeric(hist.get("points_for"), errors="coerce")
+    hist["wins"] = pd.to_numeric(hist.get("wins"), errors="coerce").fillna(0)
+    hist["losses"] = pd.to_numeric(hist.get("losses"), errors="coerce").fillna(0)
+    hist["ties"] = pd.to_numeric(hist.get("ties"), errors="coerce").fillna(0)
+    hist["games"] = hist["wins"] + hist["losses"] + hist["ties"]
+    hist = hist[(hist["games"] > 0) & hist["pf"].notna()].copy()
+    if hist.empty:
+        return default_ctx
+
+    hist["ppg"] = hist["pf"] / hist["games"]
+    avg_ppg = float(hist["ppg"].mean())
+    ppg_std = float(hist["ppg"].std(ddof=0))
+    games_per_team = int(round(float(hist["games"].median()))) if not hist["games"].empty else 14
+    games_per_team = max(10, min(17, games_per_team))
+    if not np.isfinite(avg_ppg) or avg_ppg <= 0:
+        avg_ppg = default_ctx["avg_ppg"]
+    if not np.isfinite(ppg_std) or ppg_std < 2.0:
+        ppg_std = default_ctx["ppg_std"]
+    return {"avg_ppg": avg_ppg, "ppg_std": ppg_std, "games_per_team": games_per_team}
+
+
+def _schedule_covers_all_teams(matchups_df, teams):
+    if matchups_df is None or matchups_df.empty:
+        return False
+    scheduled_ids = set(pd.to_numeric(matchups_df.get("home_team_id"), errors="coerce").dropna().astype(int).tolist())
+    scheduled_ids.update(pd.to_numeric(matchups_df.get("away_team_id"), errors="coerce").dropna().astype(int).tolist())
+    team_ids = {
+        int(pd.to_numeric(t.get("team_id"), errors="coerce"))
+        for t in teams
+        if pd.notna(pd.to_numeric(t.get("team_id"), errors="coerce"))
+    }
+    return team_ids.issubset(scheduled_ids)
+
+
+def _predict_matchup_score(home_strength, away_strength, week, home_team_id, away_team_id, scoring_ctx):
+    avg_ppg = float(scoring_ctx.get("avg_ppg", 125.0))
+    ppg_std = float(scoring_ctx.get("ppg_std", 12.0))
+    strength_scale = max(5.0, min(10.0, ppg_std * 0.7))
+    noise_scale = max(2.5, min(6.0, ppg_std * 0.28))
+
+    home_noise = (((int(week) * 17 + int(home_team_id) * 13 + int(away_team_id) * 7) % 19) - 9) * noise_scale / 3.0
+    away_noise = (((int(week) * 11 + int(away_team_id) * 19 + int(home_team_id) * 5) % 19) - 9) * noise_scale / 3.0
+
+    home_score = avg_ppg + (float(home_strength) * strength_scale) + 1.6 + home_noise
+    away_score = avg_ppg + (float(away_strength) * strength_scale) + away_noise
+
+    home_score = float(np.clip(home_score, 75.0, 210.0))
+    away_score = float(np.clip(away_score, 75.0, 210.0))
+    if abs(home_score - away_score) < 0.01:
+        home_score += 0.3
     return home_score, away_score
 
 
-def _simulate_regular_season(matchups_df, team_ratings_df):
-    rating_map = {
-        int(r["Team ID"]): float(r["Projected Rating"])
-        for _, r in team_ratings_df.iterrows()
-    }
-    team_meta = {
-        int(r["Team ID"]): {"Team": r["Team"], "Manager": r["Manager"]}
-        for _, r in team_ratings_df.iterrows()
-    }
+def _build_standings_from_games(games_df, team_meta):
     standings = {
         tid: {"Team ID": tid, "Team": meta["Team"], "Manager": meta["Manager"], "Wins": 0, "Losses": 0, "Ties": 0, "Points For": 0.0, "Points Against": 0.0}
         for tid, meta in team_meta.items()
     }
-    game_rows = []
-    for _, m in matchups_df.sort_values(["week", "home_team_id", "away_team_id"]).iterrows():
-        home_id = int(m["home_team_id"])
-        away_id = int(m["away_team_id"])
+    if games_df.empty:
+        return pd.DataFrame(standings.values())
+
+    for _, g in games_df.iterrows():
+        home_id = int(g["Home Team ID"])
+        away_id = int(g["Away Team ID"])
         if home_id not in standings or away_id not in standings:
             continue
-        home_score, away_score = _predict_matchup_score(
-            rating_map.get(home_id, 100.0),
-            rating_map.get(away_id, 100.0),
-            int(m["week"]),
-            home_id,
-            away_id,
-        )
+        home_score = float(g["Home Score"])
+        away_score = float(g["Away Score"])
+
         standings[home_id]["Points For"] += home_score
         standings[home_id]["Points Against"] += away_score
         standings[away_id]["Points For"] += away_score
@@ -2220,40 +2266,115 @@ def _simulate_regular_season(matchups_df, team_ratings_df):
         if home_score > away_score:
             standings[home_id]["Wins"] += 1
             standings[away_id]["Losses"] += 1
-            winner = standings[home_id]["Team"]
         elif away_score > home_score:
             standings[away_id]["Wins"] += 1
             standings[home_id]["Losses"] += 1
-            winner = standings[away_id]["Team"]
         else:
             standings[home_id]["Ties"] += 1
             standings[away_id]["Ties"] += 1
-            winner = "Tie"
+
+    standings_df = pd.DataFrame(standings.values())
+    standings_df["Record"] = standings_df["Wins"].astype(int).astype(str) + "-" + standings_df["Losses"].astype(int).astype(str) + "-" + standings_df["Ties"].astype(int).astype(str)
+    standings_df = standings_df.sort_values(["Wins", "Points For"], ascending=[False, False]).reset_index(drop=True)
+    standings_df["Seed"] = standings_df.index + 1
+    return standings_df
+
+
+def _enforce_minimum_wins(games_df, team_meta, min_wins=1):
+    if games_df.empty:
+        return games_df
+
+    adjusted = games_df.copy()
+    max_passes = max(1, len(team_meta) * 2)
+    for _ in range(max_passes):
+        standings_df = _build_standings_from_games(adjusted, team_meta)
+        winless_ids = standings_df[standings_df["Wins"] < min_wins]["Team ID"].astype(int).tolist()
+        if not winless_ids:
+            break
+
+        changed = False
+        for tid in winless_ids:
+            home_losses = adjusted[(adjusted["Home Team ID"] == tid) & (adjusted["Home Score"] < adjusted["Away Score"])].copy()
+            away_losses = adjusted[(adjusted["Away Team ID"] == tid) & (adjusted["Away Score"] < adjusted["Home Score"])].copy()
+            if home_losses.empty and away_losses.empty:
+                continue
+
+            home_losses["margin"] = home_losses["Away Score"] - home_losses["Home Score"]
+            away_losses["margin"] = away_losses["Home Score"] - away_losses["Away Score"]
+            candidates = pd.concat([home_losses, away_losses], ignore_index=False)
+            pick_idx = candidates["margin"].astype(float).idxmin()
+            row = adjusted.loc[pick_idx]
+            if int(row["Home Team ID"]) == tid:
+                adjusted.at[pick_idx, "Home Score"] = float(row["Away Score"]) + 0.4
+            else:
+                adjusted.at[pick_idx, "Away Score"] = float(row["Home Score"]) + 0.4
+            changed = True
+
+        if not changed:
+            break
+    return adjusted
+
+
+def _simulate_regular_season(matchups_df, team_ratings_df, scoring_ctx):
+    rating_map = {
+        int(r["Team ID"]): float(r.get("Strength Index", 0.0))
+        for _, r in team_ratings_df.iterrows()
+    }
+    team_meta = {
+        int(r["Team ID"]): {"Team": r["Team"], "Manager": r["Manager"]}
+        for _, r in team_ratings_df.iterrows()
+    }
+    game_rows = []
+    for _, m in matchups_df.sort_values(["week", "home_team_id", "away_team_id"]).iterrows():
+        home_id = int(m["home_team_id"])
+        away_id = int(m["away_team_id"])
+        if home_id not in team_meta or away_id not in team_meta:
+            continue
+        home_score, away_score = _predict_matchup_score(
+            rating_map.get(home_id, 0.0),
+            rating_map.get(away_id, 0.0),
+            int(m["week"]),
+            home_id,
+            away_id,
+            scoring_ctx,
+        )
+        winner = "Tie"
+        if home_score > away_score:
+            winner = team_meta[home_id]["Team"]
+        elif away_score > home_score:
+            winner = team_meta[away_id]["Team"]
         game_rows.append(
             {
                 "Week": int(m["week"]),
-                "Home Team": standings[home_id]["Team"],
-                "Away Team": standings[away_id]["Team"],
+                "Home Team ID": home_id,
+                "Away Team ID": away_id,
+                "Home Team": team_meta[home_id]["Team"],
+                "Away Team": team_meta[away_id]["Team"],
                 "Home Score": round(home_score, 1),
                 "Away Score": round(away_score, 1),
                 "Winner": winner,
             }
         )
 
-    standings_df = pd.DataFrame(standings.values())
-    standings_df["Record"] = standings_df["Wins"].astype(int).astype(str) + "-" + standings_df["Losses"].astype(int).astype(str) + "-" + standings_df["Ties"].astype(int).astype(str)
-    standings_df = standings_df.sort_values(["Wins", "Points For"], ascending=[False, False]).reset_index(drop=True)
-    standings_df["Seed"] = standings_df.index + 1
-    return standings_df, pd.DataFrame(game_rows)
+    games_df = pd.DataFrame(game_rows)
+    games_df = _enforce_minimum_wins(games_df, team_meta, min_wins=1)
+    standings_df = _build_standings_from_games(games_df, team_meta)
+    games_df["Winner"] = np.where(
+        games_df["Home Score"] > games_df["Away Score"],
+        games_df["Home Team"],
+        np.where(games_df["Away Score"] > games_df["Home Score"], games_df["Away Team"], "Tie"),
+    )
+    return standings_df, games_df.drop(columns=["Home Team ID", "Away Team ID"], errors="ignore")
 
 
-def _simulate_playoffs(standings_df, team_ratings_df):
+def _simulate_playoffs(standings_df, team_ratings_df, scoring_ctx=None):
     if standings_df.empty:
         return {}, pd.DataFrame()
     rating_map = {
-        int(r["Team ID"]): float(r["Projected Rating"])
+        int(r["Team ID"]): float(r.get("Strength Index", 0.0))
         for _, r in team_ratings_df.iterrows()
     }
+    scoring_ctx = scoring_ctx or {"avg_ppg": 125.0, "ppg_std": 12.0, "games_per_team": 14}
     top = standings_df.head(4).copy()
     if len(top) < 2:
         winner_row = standings_df.iloc[0]
@@ -2267,19 +2388,19 @@ def _simulate_playoffs(standings_df, team_ratings_df):
     playoff_rows = []
     finalists = []
     if s1 is not None and s4 is not None:
-        h, a = _predict_matchup_score(rating_map.get(int(s1["Team ID"]), 100), rating_map.get(int(s4["Team ID"]), 100), 100, int(s1["Team ID"]), int(s4["Team ID"]))
+        h, a = _predict_matchup_score(rating_map.get(int(s1["Team ID"]), 0.0), rating_map.get(int(s4["Team ID"]), 0.0), 100, int(s1["Team ID"]), int(s4["Team ID"]), scoring_ctx)
         win = s1 if h >= a else s4
         finalists.append(win)
         playoff_rows.append({"Round": "Semifinal", "Matchup": f"{s1['Team']} vs {s4['Team']}", "Score": f"{h:.1f}-{a:.1f}", "Winner": win["Team"]})
     if s2 is not None and s3 is not None:
-        h, a = _predict_matchup_score(rating_map.get(int(s2["Team ID"]), 100), rating_map.get(int(s3["Team ID"]), 100), 101, int(s2["Team ID"]), int(s3["Team ID"]))
+        h, a = _predict_matchup_score(rating_map.get(int(s2["Team ID"]), 0.0), rating_map.get(int(s3["Team ID"]), 0.0), 101, int(s2["Team ID"]), int(s3["Team ID"]), scoring_ctx)
         win = s2 if h >= a else s3
         finalists.append(win)
         playoff_rows.append({"Round": "Semifinal", "Matchup": f"{s2['Team']} vs {s3['Team']}", "Score": f"{h:.1f}-{a:.1f}", "Winner": win["Team"]})
 
     if len(finalists) == 2:
         f1, f2 = finalists[0], finalists[1]
-        h, a = _predict_matchup_score(rating_map.get(int(f1["Team ID"]), 100), rating_map.get(int(f2["Team ID"]), 100), 102, int(f1["Team ID"]), int(f2["Team ID"]))
+        h, a = _predict_matchup_score(rating_map.get(int(f1["Team ID"]), 0.0), rating_map.get(int(f2["Team ID"]), 0.0), 102, int(f1["Team ID"]), int(f2["Team ID"]), scoring_ctx)
         winner = f1 if h >= a else f2
         runner = f2 if winner["Team"] == f1["Team"] else f1
         playoff_rows.append({"Round": "Final", "Matchup": f"{f1['Team']} vs {f2['Team']}", "Score": f"{h:.1f}-{a:.1f}", "Winner": winner["Team"]})
@@ -2296,16 +2417,24 @@ def _render_predictions_page():
 
     cy = datetime.now().year
     season_options = list(range(cy - 1, 2017, -1))
-    _ensure_season_multiselect_default("predictions_tendency_seasons", _default_season_selection())
+    default_tendency_seasons = season_options.copy()
+    legacy_defaults = sorted(_default_season_selection())
+    current_tendency_state = st.session_state.get("predictions_tendency_seasons")
+    try:
+        if current_tendency_state is not None and sorted(set(int(s) for s in current_tendency_state)) == legacy_defaults:
+            st.session_state["predictions_tendency_seasons"] = default_tendency_seasons
+    except Exception:
+        st.session_state["predictions_tendency_seasons"] = default_tendency_seasons
+    _ensure_season_multiselect_default("predictions_tendency_seasons", default_tendency_seasons)
     tendency_seasons = st.multiselect(
         "Tendency seasons",
         options=season_options,
-        default=_default_season_selection(),
+        default=default_tendency_seasons,
         key="predictions_tendency_seasons",
-        help="Past seasons used to learn each manager's draft tendencies.",
+        help="Past seasons used to learn each manager's draft tendencies. Defaults to all available historical seasons.",
     )
     if not tendency_seasons:
-        tendency_seasons = _default_season_selection()
+        tendency_seasons = default_tendency_seasons
     tendency_seasons = sorted(set(int(s) for s in tendency_seasons))
     schedule_season = st.selectbox(
         "Schedule template season",
@@ -2378,6 +2507,8 @@ def _render_predictions_page():
         tendencies = _derive_team_tendencies(teams, draft_df)
         draft_board_df, team_picks = _simulate_full_league_draft(teams, tendencies, rounds=16)
         team_ratings_df, roster_df = _compute_team_ratings(team_picks)
+        scoring_ctx = _compute_historical_scoring_context(season_df)
+        regular_season_weeks = int(scoring_ctx.get("games_per_team", 14))
 
         schedule_rows = []
         schedule_source = "Live ESPN"
@@ -2392,17 +2523,27 @@ def _render_predictions_page():
             except Exception:
                 schedule_rows = []
         if not schedule_rows:
-            schedule_rows = _build_round_robin_matchups(teams, weeks=14)
+            schedule_rows = _build_round_robin_matchups(teams, weeks=regular_season_weeks)
             schedule_source = "Generated fallback"
 
         matchups_df = pd.DataFrame(schedule_rows)
-        standings_df, games_df = _simulate_regular_season(matchups_df, team_ratings_df)
-        playoff_outcome, playoff_df = _simulate_playoffs(standings_df, team_ratings_df)
+        if not matchups_df.empty:
+            matchups_df["week"] = pd.to_numeric(matchups_df.get("week"), errors="coerce")
+            matchups_df = matchups_df[matchups_df["week"].notna()].copy()
+            matchups_df["week"] = matchups_df["week"].astype(int)
+            matchups_df = matchups_df[matchups_df["week"] <= regular_season_weeks].copy()
+        if not _schedule_covers_all_teams(matchups_df, teams):
+            matchups_df = pd.DataFrame(_build_round_robin_matchups(teams, weeks=regular_season_weeks))
+            schedule_source = "Generated fallback"
+
+        standings_df, games_df = _simulate_regular_season(matchups_df, team_ratings_df, scoring_ctx)
+        playoff_outcome, playoff_df = _simulate_playoffs(standings_df, team_ratings_df, scoring_ctx)
 
         st.session_state.predictions_output = {
             "tendency_seasons": tendency_seasons,
             "schedule_season": int(schedule_season),
             "schedule_source": schedule_source,
+            "scoring_context": scoring_ctx,
             "draft_board": draft_board_df,
             "roster": roster_df,
             "standings": standings_df,
@@ -2419,7 +2560,8 @@ def _render_predictions_page():
 
     st.caption(
         f"Tendencies from: {', '.join(str(s) for s in output['tendency_seasons'])} | "
-        f"Schedule: {output['schedule_season']} ({output['schedule_source']})"
+        f"Schedule: {output['schedule_season']} ({output['schedule_source']}) | "
+        f"Target PPG: {output.get('scoring_context', {}).get('avg_ppg', 125.0):.1f}"
     )
 
     c1, c2 = st.columns(2)
