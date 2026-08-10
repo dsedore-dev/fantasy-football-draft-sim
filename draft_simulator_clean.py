@@ -1840,6 +1840,608 @@ def _render_profiles_page():
         st.info("Not enough completed season rows (need at least 3) to calculate correlation.")
 
 
+@st.cache_data(ttl=21600, show_spinner=False)
+def load_espn_schedule_matchups(league_id, season, espn_s2, swid=""):
+    data = _fetch_espn_league_payload(
+        league_id,
+        season,
+        espn_s2,
+        swid,
+        views=["mMatchup", "mTeam"],
+    )
+    members = {
+        normalize_owner_id(m.get("id")): resolve_member_name(m)
+        for m in data.get("members", [])
+    }
+    teams_by_id = {}
+    for t in data.get("teams", []):
+        team_id = t.get("id")
+        owner_ids = t.get("owners") or []
+        owner_id = owner_ids[0] if owner_ids else t.get("primaryOwner")
+        team_name = t.get("name") or t.get("abbrev") or f"Team {team_id}"
+        owner_name = resolve_manager_label(
+            members.get(normalize_owner_id(owner_id), ""),
+            team_name,
+            team_id,
+        )
+        teams_by_id[int(team_id)] = {
+            "team_id": int(team_id),
+            "team_name": team_name,
+            "owner_name": owner_name,
+            "owner_id": owner_id,
+        }
+
+    rows = []
+    for m in data.get("schedule", []):
+        week = pd.to_numeric(m.get("matchupPeriodId"), errors="coerce")
+        home = m.get("home", {}) or {}
+        away = m.get("away", {}) or {}
+        home_id = pd.to_numeric(home.get("teamId"), errors="coerce")
+        away_id = pd.to_numeric(away.get("teamId"), errors="coerce")
+        if pd.isna(week) or pd.isna(home_id) or pd.isna(away_id):
+            continue
+        home_id = int(home_id)
+        away_id = int(away_id)
+        if home_id <= 0 or away_id <= 0:
+            continue
+        rows.append(
+            {
+                "season": int(season),
+                "week": int(week),
+                "home_team_id": home_id,
+                "away_team_id": away_id,
+                "home_team_name": teams_by_id.get(home_id, {}).get("team_name", f"Team {home_id}"),
+                "away_team_name": teams_by_id.get(away_id, {}).get("team_name", f"Team {away_id}"),
+                "home_owner_name": teams_by_id.get(home_id, {}).get("owner_name", "Unknown manager"),
+                "away_owner_name": teams_by_id.get(away_id, {}).get("owner_name", "Unknown manager"),
+            }
+        )
+    return rows
+
+
+def _build_round_robin_matchups(teams, weeks=14):
+    team_ids = [int(t.get("team_id")) for t in teams if pd.notna(t.get("team_id"))]
+    team_ids = sorted(set(team_ids))
+    if len(team_ids) < 2:
+        return []
+
+    working = team_ids.copy()
+    if len(working) % 2 == 1:
+        working.append(None)
+
+    rounds = []
+    rotating = working.copy()
+    for _ in range(len(rotating) - 1):
+        pairs = []
+        half = len(rotating) // 2
+        for i in range(half):
+            a = rotating[i]
+            b = rotating[-(i + 1)]
+            if a is None or b is None:
+                continue
+            pairs.append((a, b))
+        rounds.append(pairs)
+        rotating = [rotating[0]] + [rotating[-1]] + rotating[1:-1]
+
+    team_map = {int(t.get("team_id")): t for t in teams if pd.notna(t.get("team_id"))}
+    rows = []
+    for week in range(1, weeks + 1):
+        week_pairs = rounds[(week - 1) % len(rounds)]
+        for i, (team_a, team_b) in enumerate(week_pairs):
+            home_id = team_a if (week + i) % 2 == 0 else team_b
+            away_id = team_b if home_id == team_a else team_a
+            rows.append(
+                {
+                    "season": np.nan,
+                    "week": week,
+                    "home_team_id": int(home_id),
+                    "away_team_id": int(away_id),
+                    "home_team_name": str(team_map.get(home_id, {}).get("name", f"Team {home_id}")),
+                    "away_team_name": str(team_map.get(away_id, {}).get("name", f"Team {away_id}")),
+                    "home_owner_name": get_team_manager_display(team_map.get(home_id, {"team_id": home_id, "name": f"Team {home_id}"})),
+                    "away_owner_name": get_team_manager_display(team_map.get(away_id, {"team_id": away_id, "name": f"Team {away_id}"})),
+                }
+            )
+    return rows
+
+
+def _derive_team_tendencies(teams, draft_df):
+    tendencies = {}
+    for team in teams:
+        team_id = team.get("team_id")
+        if pd.isna(pd.to_numeric(team_id, errors="coerce")):
+            continue
+        team_id = int(team_id)
+        owner_id = team.get("owner_id")
+        owner_name = normalize_manager_name(team.get("owner"))
+        subset = pd.DataFrame()
+        if not draft_df.empty and team_id is not None:
+            subset = draft_df[draft_df["team_id"] == team_id].copy()
+        if subset.empty and not draft_df.empty and owner_id is not None:
+            owner_norm = normalize_owner_id(owner_id)
+            subset = draft_df[draft_df["owner_id"].apply(normalize_owner_id) == owner_norm].copy()
+        if subset.empty and not draft_df.empty:
+            subset = draft_df[
+                draft_df["owner_name"].astype(str).str.lower() == str(owner_name).lower()
+            ].copy()
+
+        round_pref = {}
+        pos_weights = {}
+        if not subset.empty:
+            subset["round"] = pd.to_numeric(subset.get("round"), errors="coerce")
+            subset["player_pos"] = subset.get("player_pos", "—").fillna("—").astype(str).str.upper()
+            valid = subset[(subset["round"].between(1, 16)) & (subset["player_pos"].isin(["QB", "RB", "WR", "TE", "DEF", "K"]))].copy()
+            if not valid.empty:
+                for rnd in range(1, 17):
+                    rnd_rows = valid[valid["round"] == rnd]
+                    if not rnd_rows.empty:
+                        round_pref[rnd] = str(rnd_rows["player_pos"].value_counts().index[0])
+                early = valid[valid["round"] <= 8]
+                if not early.empty:
+                    counts = early["player_pos"].value_counts()
+                    total = float(counts.sum())
+                    if total > 0:
+                        pos_weights = {str(k): float(v) / total for k, v in counts.to_dict().items()}
+
+        tendencies[team_id] = {
+            "round_pos_pref": round_pref,
+            "pos_weights": pos_weights,
+            "sample_size": int(len(subset)),
+        }
+    return tendencies
+
+
+def _needed_positions_for_pick(team_picks):
+    counts = {"QB": 0, "RB": 0, "WR": 0, "TE": 0, "DEF": 0, "K": 0}
+    for p in team_picks:
+        pos = str(p.get("Position", "")).upper()
+        if pos in counts:
+            counts[pos] += 1
+
+    mins = {"QB": 1, "RB": 2, "WR": 2, "TE": 1, "DEF": 1, "K": 1}
+    remaining = {pos: max(mins[pos] - counts[pos], 0) for pos in mins}
+    flex_pool = max(counts["RB"] - 2, 0) + max(counts["WR"] - 2, 0) + max(counts["TE"] - 1, 0)
+    remaining_flex = max(1 - flex_pool, 0)
+
+    needed = {pos for pos, v in remaining.items() if v > 0}
+    if remaining_flex > 0:
+        needed.update({"RB", "WR", "TE"})
+
+    if not needed:
+        needed = {"RB", "WR", "TE", "QB", "DEF", "K"}
+    return needed, counts
+
+
+def _simulate_full_league_draft(teams, tendencies, rounds=16):
+    available_pool = build_player_pool(df_players, drafted_names=set(), allowed_positions=["QB", "RB", "WR", "TE", "DEF", "K"]).copy()
+    available_pool = available_pool.sort_values("ADP_Resolved").reset_index(drop=True)
+    picked_names = set()
+
+    teams_by_slot = sorted(
+        teams,
+        key=lambda t: (
+            pd.isna(pd.to_numeric(t.get("draft_slot"), errors="coerce")),
+            int(pd.to_numeric(t.get("draft_slot"), errors="coerce")) if pd.notna(pd.to_numeric(t.get("draft_slot"), errors="coerce")) else 999,
+            int(pd.to_numeric(t.get("team_id"), errors="coerce")) if pd.notna(pd.to_numeric(t.get("team_id"), errors="coerce")) else 999,
+        ),
+    )
+    team_picks = {int(t["team_id"]): [] for t in teams_by_slot}
+    draft_rows = []
+
+    overall_pick = 1
+    for rnd in range(1, rounds + 1):
+        round_order = teams_by_slot if rnd % 2 == 1 else list(reversed(teams_by_slot))
+        for round_pick, team in enumerate(round_order, start=1):
+            tid = int(team["team_id"])
+            manager = get_team_manager_display(team)
+            t_tendency = tendencies.get(tid, {"round_pos_pref": {}, "pos_weights": {}, "sample_size": 0})
+            needed_positions, pos_counts = _needed_positions_for_pick(team_picks[tid])
+
+            pool = available_pool[~available_pool["Player"].isin(picked_names)].copy()
+            if pool.empty:
+                break
+
+            window = pool[(pool["ADP_Resolved"] >= overall_pick - 2) & (pool["ADP_Resolved"] <= overall_pick + 24)].copy()
+            if len(window) < 10:
+                window = pool.head(40).copy()
+
+            round_pref = t_tendency.get("round_pos_pref", {}).get(rnd)
+            pos_weights = t_tendency.get("pos_weights", {})
+
+            def _score(row):
+                pos = str(row.get("Position", "")).upper()
+                adp = float(row.get("ADP_Resolved", 999))
+                avg_adp = float(row.get("Avg_ADP_Resolved", adp)) if pd.notna(row.get("Avg_ADP_Resolved")) else adp
+                tier = pd.to_numeric(row.get("Tier"), errors="coerce")
+                adp_score = -abs(adp - overall_pick) * 1.35
+                need_score = 18.0 if pos in needed_positions else -4.5
+                pref_score = 12.0 if (round_pref and pos == round_pref) else (-2.5 if round_pref else 0.0)
+                tendency_score = float(pos_weights.get(pos, 0.0)) * 10.0
+                tier_score = (15.0 - float(tier)) * 0.8 if pd.notna(tier) else 0.0
+                scarcity_penalty = 0.0
+                if pos in {"DEF", "K"} and rnd <= 9:
+                    scarcity_penalty -= 18.0
+                if pos == "QB" and pos_counts["QB"] >= 2:
+                    scarcity_penalty -= 14.0
+                if pos == "TE" and pos_counts["TE"] >= 2:
+                    scarcity_penalty -= 10.0
+                return adp_score + need_score + pref_score + tendency_score + tier_score + scarcity_penalty - (avg_adp * 0.0025)
+
+            window["sim_score"] = window.apply(_score, axis=1)
+            choice = window.sort_values(["sim_score", "ADP_Resolved"], ascending=[False, True]).iloc[0]
+
+            pick_row = {
+                "Round": int(rnd),
+                "Round Pick": int(round_pick),
+                "Overall Pick": int(overall_pick),
+                "Team ID": tid,
+                "Team": str(team.get("name", f"Team {tid}")),
+                "Manager": manager,
+                "Player": str(choice.get("Player", "")),
+                "Position": str(choice.get("Position", "")),
+                "NFL Team": str(choice.get("Team", "")),
+                "Avg ADP": float(choice.get("Avg_ADP_Resolved", np.nan)) if pd.notna(choice.get("Avg_ADP_Resolved")) else np.nan,
+                "Tier": pd.to_numeric(choice.get("Tier"), errors="coerce"),
+                "Tendency Match": "Yes" if round_pref and str(choice.get("Position", "")).upper() == round_pref else "No",
+            }
+            draft_rows.append(pick_row)
+            team_picks[tid].append(pick_row)
+            picked_names.add(str(choice.get("Player", "")))
+            overall_pick += 1
+
+    draft_board_df = pd.DataFrame(draft_rows)
+    return draft_board_df, team_picks
+
+
+def _compute_team_ratings(team_picks):
+    def _player_value(p):
+        adp = pd.to_numeric(p.get("Avg ADP"), errors="coerce")
+        tier = pd.to_numeric(p.get("Tier"), errors="coerce")
+        adp_component = max(0.0, 220.0 - float(adp)) if pd.notna(adp) else 20.0
+        tier_component = max(0.0, 14.0 - float(tier)) * 4.0 if pd.notna(tier) else 6.0
+        return adp_component + tier_component
+
+    ratings = []
+    roster_rows = []
+    for team_id, picks in team_picks.items():
+        if not picks:
+            continue
+        team_name = picks[0]["Team"]
+        manager = picks[0]["Manager"]
+        picks_sorted = sorted(picks, key=lambda x: x["Overall Pick"])
+
+        by_pos = {"QB": [], "RB": [], "WR": [], "TE": [], "DEF": [], "K": []}
+        for p in picks_sorted:
+            pos = str(p.get("Position", "")).upper()
+            if pos in by_pos:
+                by_pos[pos].append(p)
+
+        for pos in by_pos:
+            by_pos[pos] = sorted(by_pos[pos], key=lambda x: _player_value(x), reverse=True)
+
+        starters = []
+        starters.extend(by_pos["QB"][:1])
+        starters.extend(by_pos["RB"][:2])
+        starters.extend(by_pos["WR"][:2])
+        starters.extend(by_pos["TE"][:1])
+        starters.extend(by_pos["DEF"][:1])
+        starters.extend(by_pos["K"][:1])
+
+        flex_pool = by_pos["RB"][2:] + by_pos["WR"][2:] + by_pos["TE"][1:]
+        flex_pick = sorted(flex_pool, key=lambda x: _player_value(x), reverse=True)[:1]
+        starters.extend(flex_pick)
+
+        starter_ids = {id(p) for p in starters}
+        bench = [p for p in picks_sorted if id(p) not in starter_ids]
+
+        starter_value = sum(_player_value(p) for p in starters)
+        bench_value = sum(_player_value(p) for p in bench) * 0.2
+        rating = starter_value + bench_value
+
+        ratings.append(
+            {
+                "Team ID": int(team_id),
+                "Team": team_name,
+                "Manager": manager,
+                "Projected Rating": round(float(rating), 1),
+            }
+        )
+
+        qb = by_pos["QB"][0]["Player"] if by_pos["QB"] else "—"
+        rb1 = by_pos["RB"][0]["Player"] if len(by_pos["RB"]) > 0 else "—"
+        rb2 = by_pos["RB"][1]["Player"] if len(by_pos["RB"]) > 1 else "—"
+        wr1 = by_pos["WR"][0]["Player"] if len(by_pos["WR"]) > 0 else "—"
+        wr2 = by_pos["WR"][1]["Player"] if len(by_pos["WR"]) > 1 else "—"
+        te = by_pos["TE"][0]["Player"] if by_pos["TE"] else "—"
+        defn = by_pos["DEF"][0]["Player"] if by_pos["DEF"] else "—"
+        k = by_pos["K"][0]["Player"] if by_pos["K"] else "—"
+        flex = flex_pick[0]["Player"] if flex_pick else "—"
+
+        roster_rows.append(
+            {
+                "Team": team_name,
+                "Manager": manager,
+                "QB": qb,
+                "RB1": rb1,
+                "RB2": rb2,
+                "WR1": wr1,
+                "WR2": wr2,
+                "TE": te,
+                "FLEX": flex,
+                "DEF": defn,
+                "K": k,
+                "Bench Picks": max(len(bench), 0),
+                "Projected Rating": round(float(rating), 1),
+            }
+        )
+    return pd.DataFrame(ratings), pd.DataFrame(roster_rows)
+
+
+def _predict_matchup_score(home_rating, away_rating, week, home_team_id, away_team_id):
+    home_adj = ((int(week) * 17 + int(home_team_id) * 13 + int(away_team_id) * 7) % 15) - 7
+    away_adj = ((int(week) * 11 + int(away_team_id) * 19 + int(home_team_id) * 5) % 15) - 7
+    home_score = float(home_rating) + float(home_adj) + 3.0
+    away_score = float(away_rating) + float(away_adj)
+    if abs(home_score - away_score) < 0.001:
+        home_score += 0.5
+    return home_score, away_score
+
+
+def _simulate_regular_season(matchups_df, team_ratings_df):
+    rating_map = {
+        int(r["Team ID"]): float(r["Projected Rating"])
+        for _, r in team_ratings_df.iterrows()
+    }
+    team_meta = {
+        int(r["Team ID"]): {"Team": r["Team"], "Manager": r["Manager"]}
+        for _, r in team_ratings_df.iterrows()
+    }
+    standings = {
+        tid: {"Team ID": tid, "Team": meta["Team"], "Manager": meta["Manager"], "Wins": 0, "Losses": 0, "Ties": 0, "Points For": 0.0, "Points Against": 0.0}
+        for tid, meta in team_meta.items()
+    }
+    game_rows = []
+    for _, m in matchups_df.sort_values(["week", "home_team_id", "away_team_id"]).iterrows():
+        home_id = int(m["home_team_id"])
+        away_id = int(m["away_team_id"])
+        if home_id not in standings or away_id not in standings:
+            continue
+        home_score, away_score = _predict_matchup_score(
+            rating_map.get(home_id, 100.0),
+            rating_map.get(away_id, 100.0),
+            int(m["week"]),
+            home_id,
+            away_id,
+        )
+        standings[home_id]["Points For"] += home_score
+        standings[home_id]["Points Against"] += away_score
+        standings[away_id]["Points For"] += away_score
+        standings[away_id]["Points Against"] += home_score
+        if home_score > away_score:
+            standings[home_id]["Wins"] += 1
+            standings[away_id]["Losses"] += 1
+            winner = standings[home_id]["Team"]
+        elif away_score > home_score:
+            standings[away_id]["Wins"] += 1
+            standings[home_id]["Losses"] += 1
+            winner = standings[away_id]["Team"]
+        else:
+            standings[home_id]["Ties"] += 1
+            standings[away_id]["Ties"] += 1
+            winner = "Tie"
+        game_rows.append(
+            {
+                "Week": int(m["week"]),
+                "Home Team": standings[home_id]["Team"],
+                "Away Team": standings[away_id]["Team"],
+                "Home Score": round(home_score, 1),
+                "Away Score": round(away_score, 1),
+                "Winner": winner,
+            }
+        )
+
+    standings_df = pd.DataFrame(standings.values())
+    standings_df["Record"] = standings_df["Wins"].astype(int).astype(str) + "-" + standings_df["Losses"].astype(int).astype(str) + "-" + standings_df["Ties"].astype(int).astype(str)
+    standings_df = standings_df.sort_values(["Wins", "Points For"], ascending=[False, False]).reset_index(drop=True)
+    standings_df["Seed"] = standings_df.index + 1
+    return standings_df, pd.DataFrame(game_rows)
+
+
+def _simulate_playoffs(standings_df, team_ratings_df):
+    if standings_df.empty:
+        return {}, pd.DataFrame()
+    rating_map = {
+        int(r["Team ID"]): float(r["Projected Rating"])
+        for _, r in team_ratings_df.iterrows()
+    }
+    top = standings_df.head(4).copy()
+    if len(top) < 2:
+        winner_row = standings_df.iloc[0]
+        return {"winner": winner_row["Team"], "runner_up": "—"}, pd.DataFrame()
+
+    def _team_row(seed):
+        row = top[top["Seed"] == seed]
+        return row.iloc[0] if not row.empty else None
+
+    s1, s2, s3, s4 = _team_row(1), _team_row(2), _team_row(3), _team_row(4)
+    playoff_rows = []
+    finalists = []
+    if s1 is not None and s4 is not None:
+        h, a = _predict_matchup_score(rating_map.get(int(s1["Team ID"]), 100), rating_map.get(int(s4["Team ID"]), 100), 100, int(s1["Team ID"]), int(s4["Team ID"]))
+        win = s1 if h >= a else s4
+        finalists.append(win)
+        playoff_rows.append({"Round": "Semifinal", "Matchup": f"{s1['Team']} vs {s4['Team']}", "Score": f"{h:.1f}-{a:.1f}", "Winner": win["Team"]})
+    if s2 is not None and s3 is not None:
+        h, a = _predict_matchup_score(rating_map.get(int(s2["Team ID"]), 100), rating_map.get(int(s3["Team ID"]), 100), 101, int(s2["Team ID"]), int(s3["Team ID"]))
+        win = s2 if h >= a else s3
+        finalists.append(win)
+        playoff_rows.append({"Round": "Semifinal", "Matchup": f"{s2['Team']} vs {s3['Team']}", "Score": f"{h:.1f}-{a:.1f}", "Winner": win["Team"]})
+
+    if len(finalists) == 2:
+        f1, f2 = finalists[0], finalists[1]
+        h, a = _predict_matchup_score(rating_map.get(int(f1["Team ID"]), 100), rating_map.get(int(f2["Team ID"]), 100), 102, int(f1["Team ID"]), int(f2["Team ID"]))
+        winner = f1 if h >= a else f2
+        runner = f2 if winner["Team"] == f1["Team"] else f1
+        playoff_rows.append({"Round": "Final", "Matchup": f"{f1['Team']} vs {f2['Team']}", "Score": f"{h:.1f}-{a:.1f}", "Winner": winner["Team"]})
+        return {"winner": winner["Team"], "runner_up": runner["Team"]}, pd.DataFrame(playoff_rows)
+
+    winner_row = standings_df.iloc[0]
+    runner_row = standings_df.iloc[1] if len(standings_df) > 1 else winner_row
+    return {"winner": winner_row["Team"], "runner_up": runner_row["Team"]}, pd.DataFrame(playoff_rows)
+
+
+def _render_predictions_page():
+    st.title("Predictions")
+    st.caption("Simulate a full league draft from team tendencies, then project season records and playoff winner.")
+
+    cy = datetime.now().year
+    season_options = list(range(cy - 1, 2017, -1))
+    _ensure_season_multiselect_default("predictions_tendency_seasons", _default_season_selection())
+    tendency_seasons = st.multiselect(
+        "Tendency seasons",
+        options=season_options,
+        default=_default_season_selection(),
+        key="predictions_tendency_seasons",
+        help="Past seasons used to learn each manager's draft tendencies.",
+    )
+    if not tendency_seasons:
+        tendency_seasons = _default_season_selection()
+    tendency_seasons = sorted(set(int(s) for s in tendency_seasons))
+    schedule_season = st.selectbox(
+        "Schedule template season",
+        options=season_options,
+        index=0,
+        key="predictions_schedule_season",
+        help="Use this season's opponents/matchups as the schedule for projected records.",
+    )
+
+    run_prediction = st.button("Run league prediction", type="primary", width="stretch")
+    if run_prediction:
+        teams = [
+            t for t in get_preferred_teams()
+            if pd.notna(pd.to_numeric(t.get("team_id"), errors="coerce"))
+        ]
+        if not teams:
+            st.warning("No teams available for predictions.")
+            return
+
+        season_rows = []
+        draft_rows = []
+        failed = []
+        if st.session_state.espn_s2:
+            with st.spinner("Loading history and simulating draft..."):
+                for season in tendency_seasons:
+                    try:
+                        s_rows, d_rows = load_espn_season_history(
+                            st.session_state.espn_league_id,
+                            season,
+                            st.session_state.espn_s2,
+                            st.session_state.espn_swid,
+                        )
+                        season_rows.extend(s_rows)
+                        draft_rows.extend(d_rows)
+                    except urllib.error.HTTPError as e:
+                        failed.append(f"{season} (HTTP {e.code})")
+                    except Exception:
+                        failed.append(f"{season} (failed)")
+        else:
+            failed = [f"{season} (no live connection)" for season in tendency_seasons]
+
+        if failed:
+            st.warning("Some tendency seasons could not be loaded: " + ", ".join(failed))
+
+        season_df = pd.DataFrame(season_rows)
+        draft_df = pd.DataFrame(draft_rows)
+        if draft_df.empty:
+            fallback = []
+            for season in tendency_seasons:
+                for team in teams:
+                    fallback.extend(_build_fallback_draft_rows(team, season))
+            draft_df = pd.DataFrame(fallback)
+
+        canonical_owner_by_id = {
+            normalize_owner_id(t.get("owner_id")): normalize_manager_name(t.get("owner"))
+            for t in teams
+        }
+        if not draft_df.empty:
+            draft_df["owner_name"] = draft_df.apply(
+                lambda r: _merge_manager_name(
+                    r.get("owner_name", ""),
+                    r.get("owner_id"),
+                    canonical_owner_by_id,
+                    r.get("team_name", ""),
+                    r.get("team_id"),
+                ),
+                axis=1,
+            )
+
+        tendencies = _derive_team_tendencies(teams, draft_df)
+        draft_board_df, team_picks = _simulate_full_league_draft(teams, tendencies, rounds=16)
+        team_ratings_df, roster_df = _compute_team_ratings(team_picks)
+
+        schedule_rows = []
+        schedule_source = "Live ESPN"
+        if st.session_state.espn_s2:
+            try:
+                schedule_rows = load_espn_schedule_matchups(
+                    st.session_state.espn_league_id,
+                    int(schedule_season),
+                    st.session_state.espn_s2,
+                    st.session_state.espn_swid,
+                )
+            except Exception:
+                schedule_rows = []
+        if not schedule_rows:
+            schedule_rows = _build_round_robin_matchups(teams, weeks=14)
+            schedule_source = "Generated fallback"
+
+        matchups_df = pd.DataFrame(schedule_rows)
+        standings_df, games_df = _simulate_regular_season(matchups_df, team_ratings_df)
+        playoff_outcome, playoff_df = _simulate_playoffs(standings_df, team_ratings_df)
+
+        st.session_state.predictions_output = {
+            "tendency_seasons": tendency_seasons,
+            "schedule_season": int(schedule_season),
+            "schedule_source": schedule_source,
+            "draft_board": draft_board_df,
+            "roster": roster_df,
+            "standings": standings_df,
+            "games": games_df,
+            "playoffs": playoff_df,
+            "winner": playoff_outcome.get("winner", "—"),
+            "runner_up": playoff_outcome.get("runner_up", "—"),
+        }
+
+    output = st.session_state.get("predictions_output")
+    if not output:
+        st.info("Set your seasons and click **Run league prediction**.")
+        return
+
+    st.caption(
+        f"Tendencies from: {', '.join(str(s) for s in output['tendency_seasons'])} | "
+        f"Schedule: {output['schedule_season']} ({output['schedule_source']})"
+    )
+
+    c1, c2 = st.columns(2)
+    with c1:
+        st.metric("Projected champion", output.get("winner", "—"))
+    with c2:
+        st.metric("Projected runner-up", output.get("runner_up", "—"))
+
+    tab1, tab2, tab3, tab4 = st.tabs(["Standings", "Full draft board", "Projected rosters", "Matchups"])
+    with tab1:
+        st.dataframe(output["standings"], hide_index=True)
+        if isinstance(output.get("playoffs"), pd.DataFrame) and not output["playoffs"].empty:
+            st.subheader("Projected playoffs")
+            st.dataframe(output["playoffs"], hide_index=True)
+    with tab2:
+        st.dataframe(output["draft_board"], hide_index=True)
+    with tab3:
+        st.dataframe(output["roster"], hide_index=True)
+    with tab4:
+        st.dataframe(output["games"], hide_index=True)
+
+
 def _render_team_views_hub():
     st.title("Draft view")
 
@@ -2263,16 +2865,17 @@ def _render_global_navigation():
         """,
         unsafe_allow_html=True,
     )
-    nav_cols = st.columns(7, gap="small")
     nav_buttons = [
         ("Home", "Landing", "nav_home"),
         ("Simulator", "Draft simulator", "nav_sim"),
         ("Research", "Draft research", "nav_research"),
         ("League history", "League history", "nav_league"),
+        ("Predictions", "Predictions", "nav_predictions"),
         ("Profiles", "Profiles", "nav_profiles"),
         ("Team views", "Team views", "nav_teams"),
         ("Draft recap", "Draft recap", "nav_recap"),
     ]
+    nav_cols = st.columns(len(nav_buttons), gap="small")
     for i, (label, target_page, key) in enumerate(nav_buttons):
         if target_page == "Draft recap" and not st.session_state.drafted_players:
             continue
@@ -2352,6 +2955,12 @@ if st.session_state.app_page == "Draft research":
 
 if st.session_state.app_page == "League history":
     _render_league_history_page()
+    st.divider()
+    st.caption("2026 Fantasy Football Draft Simulator v3.0 | 21 Mock Drafts | 240 Players | 5 ADP Sources")
+    st.stop()
+
+if st.session_state.app_page == "Predictions":
+    _render_predictions_page()
     st.divider()
     st.caption("2026 Fantasy Football Draft Simulator v3.0 | 21 Mock Drafts | 240 Players | 5 ADP Sources")
     st.stop()
